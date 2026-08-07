@@ -9,49 +9,53 @@
   :root {
     --accent: #ffffff;
     --text: #ffffff;
-    --bg: #0a0a0a;
+    --text-secondary: rgba(255,255,255,0.75);
+    --bg-solid: #0a0a0a;
     --icon: #ffffff;
+    --icon-bg: rgba(255,255,255,0.06);
     --glow: #7c5cff;
+    --card-bg: rgba(15,15,18,0.55);
+    --card-border: rgba(255,255,255,0.08);
     --card-blur: 18px;
-    --card-opacity: 0.55;
+    --card-radius: 20px;
+    --font-display: 'Space Grotesk', -apple-system, sans-serif;
+    --font-body: 'Space Grotesk', -apple-system, sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
     height: 100%;
-    font-family: 'Space Grotesk', -apple-system, sans-serif;
-    background: var(--bg);
+    font-family: var(--font-body);
+    background: var(--bg-solid);
     color: var(--text);
     overflow: hidden;
-  }
-
-  @font-face {
-    font-family: 'Space Grotesk';
-    src: local('Space Grotesk');
   }
 
   #bg-layer {
     position: fixed;
     inset: 0;
+    background-color: var(--bg-solid);
     background-size: cover;
     background-position: center;
-    filter: blur(0px);
+    background-repeat: no-repeat;
     transform: scale(1.05);
     z-index: 0;
+    transition: background-image 0.3s ease;
   }
 
-  #bg-layer::after {
-    content: '';
-    position: absolute;
+  #bg-overlay {
+    position: fixed;
     inset: 0;
+    z-index: 1;
     background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.75) 100%);
+    pointer-events: none;
   }
 
   #noise {
     position: fixed;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
     opacity: 0.035;
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -59,7 +63,7 @@
 
   #stage {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     height: 100vh;
     display: flex;
     align-items: center;
@@ -71,11 +75,11 @@
     position: relative;
     width: min(420px, 100%);
     padding: 40px 32px 32px;
-    border-radius: 20px;
-    background: rgba(15,15,18, var(--card-opacity));
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
     backdrop-filter: blur(var(--card-blur));
     -webkit-backdrop-filter: blur(var(--card-blur));
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--card-border);
     text-align: center;
     opacity: 0;
     transform: translateY(16px);
@@ -84,6 +88,7 @@
   }
 
   #card.in { opacity: 1; transform: translateY(0); }
+  #card.no-anim { transition: none; }
 
   #avatar-wrap {
     position: relative;
@@ -102,6 +107,10 @@
     background: #222;
   }
 
+  #avatar-wrap.glow #avatar {
+    box-shadow: 0 0 24px var(--glow), 0 0 50px var(--glow);
+  }
+
   .status-dot {
     position: absolute;
     bottom: 4px;
@@ -109,15 +118,17 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    border: 3px solid rgba(15,15,18,0.9);
+    border: 3px solid #0f0f12;
     background: #747f8d;
   }
+  .status-dot.hidden { display: none; }
   .status-dot.online { background: #23a55a; }
   .status-dot.idle { background: #f0b232; }
   .status-dot.dnd { background: #f23f43; }
   .status-dot.offline { background: #80848e; }
 
   #username {
+    font-family: var(--font-display);
     font-size: 26px;
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -130,7 +141,7 @@
 
   #pronouns {
     font-size: 13px;
-    color: rgba(255,255,255,0.45);
+    color: var(--text-secondary);
     margin-top: 2px;
     letter-spacing: 0.02em;
   }
@@ -139,7 +150,7 @@
     margin-top: 14px;
     font-size: 14.5px;
     line-height: 1.55;
-    color: rgba(255,255,255,0.78);
+    color: var(--text-secondary);
     white-space: pre-wrap;
   }
 
@@ -158,7 +169,7 @@
   #activity img { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0; }
   #activity-text { min-width: 0; }
   #activity-name { font-size: 13px; font-weight: 600; }
-  #activity-detail { font-size: 12px; color: rgba(255,255,255,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #activity-detail { font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   #socials {
     margin-top: 22px;
@@ -175,25 +186,27 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255,255,255,0.06);
+    background: var(--icon-bg);
     border: 1px solid rgba(255,255,255,0.08);
     color: var(--icon);
     text-decoration: none;
     transition: transform 0.2s ease, background 0.2s ease;
   }
-  .social-link:hover { transform: translateY(-3px); background: rgba(255,255,255,0.12); }
+  .social-link:hover { transform: translateY(-3px); background: rgba(255,255,255,0.14); }
   .social-link svg { width: 18px; height: 18px; fill: currentColor; }
 
   #views {
     margin-top: 18px;
     font-size: 11px;
-    color: rgba(255,255,255,0.35);
+    color: var(--text-secondary);
+    opacity: 0.6;
     letter-spacing: 0.04em;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
   }
+  #views.hidden { display: none; }
 
   #sound-toggle {
     position: fixed;
@@ -212,6 +225,16 @@
     justify-content: center;
     cursor: pointer;
   }
+  #sound-toggle.hidden { display: none; }
+
+  #particles {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    display: none;
+  }
+  #particles.show { display: block; }
 
   ::selection { background: var(--accent); color: #000; }
 </style>
@@ -219,6 +242,8 @@
 <body>
 
 <div id="bg-layer"></div>
+<div id="bg-overlay"></div>
+<canvas id="particles"></canvas>
 <div id="noise"></div>
 <button id="sound-toggle" title="Sound" aria-label="Toggle sound">🔇</button>
 
@@ -262,25 +287,105 @@ const ICONS = {
   website: '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm7.94 9h-3.02c-.14-2.36-.85-4.55-1.98-6.36A8.02 8.02 0 0 1 19.94 11zM12 4.04c1.45 1.87 2.4 4.24 2.63 6.96H9.37c.23-2.72 1.18-5.09 2.63-6.96zM4.06 13h3.02c.14 2.36.85 4.55 1.98 6.36A8.02 8.02 0 0 1 4.06 13zM7.08 11H4.06a8.02 8.02 0 0 1 5-6.36C7.93 6.45 7.22 8.64 7.08 11zM12 19.96c-1.45-1.87-2.4-4.24-2.63-6.96h5.26c-.23 2.72-1.18 5.09-2.63 6.96zM14.9 19.36c1.13-1.81 1.84-4 1.98-6.36h3.02a8.02 8.02 0 0 1-5 6.36z"/></svg>'
 };
 
+const FONT_STACKS = {
+  'space-grotesk': "'Space Grotesk', -apple-system, sans-serif",
+  'system': "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  'mono': "'JetBrains Mono', 'SF Mono', Menlo, monospace",
+  'serif': "'Georgia', 'Times New Roman', serif",
+  'rounded': "'Quicksand', -apple-system, sans-serif"
+};
+
+let particleAnimId = null;
+
+function hexToRgba(hex, alpha) {
+  if (!hex) return `rgba(15,15,18,${alpha})`;
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  if ([r, g, b].some(isNaN)) return `rgba(15,15,18,${alpha})`;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function stopParticles() {
+  if (particleAnimId) { cancelAnimationFrame(particleAnimId); particleAnimId = null; }
+  const canvas = document.getElementById('particles');
+  canvas.classList.remove('show');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function startParticles(color) {
+  const canvas = document.getElementById('particles');
+  canvas.classList.add('show');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const count = 50;
+  const particles = Array.from({ length: count }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 2 + 0.5,
+    vy: Math.random() * 0.4 + 0.1,
+    vx: (Math.random() - 0.5) * 0.3,
+    o: Math.random() * 0.5 + 0.2
+  }));
+  function frame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = color || '#ffffff';
+    particles.forEach(p => {
+      p.y -= p.vy;
+      p.x += p.vx;
+      if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+      ctx.globalAlpha = p.o;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    particleAnimId = requestAnimationFrame(frame);
+  }
+  frame();
+}
+
 function applyTheme(cfg) {
   const r = document.documentElement.style;
-  r.setProperty('--accent', cfg.colors.accent || '#ffffff');
-  r.setProperty('--text', cfg.colors.text || '#ffffff');
-  r.setProperty('--bg', cfg.colors.background || '#0a0a0a');
-  r.setProperty('--icon', cfg.colors.icon || '#ffffff');
-  r.setProperty('--glow', cfg.colors.glow || '#7c5cff');
-  r.setProperty('--card-blur', (cfg.appearance.blurPx ?? 18) + 'px');
-  r.setProperty('--card-opacity', (cfg.appearance.cardOpacity ?? 55) / 100);
+  const colors = cfg.colors || {};
+  const app = cfg.appearance || {};
 
-  if (cfg.appearance.background) {
-    document.getElementById('bg-layer').style.backgroundImage = `url('${cfg.appearance.background}')`;
+  r.setProperty('--accent', colors.accent || '#ffffff');
+  r.setProperty('--text', colors.text || '#ffffff');
+  r.setProperty('--text-secondary', hexToRgba(colors.text || '#ffffff', 0.75));
+  r.setProperty('--bg-solid', colors.background || '#0a0a0a');
+  r.setProperty('--icon', colors.icon || '#ffffff');
+  r.setProperty('--icon-bg', hexToRgba(colors.icon || '#ffffff', 0.08));
+  r.setProperty('--glow', colors.glow || '#7c5cff');
+
+  const cardTint = colors.cardTint || '#0f0f12';
+  r.setProperty('--card-bg', hexToRgba(cardTint, (app.cardOpacity ?? 55) / 100));
+  r.setProperty('--card-border', hexToRgba(colors.accent || '#ffffff', 0.1));
+  r.setProperty('--card-blur', (app.blurPx ?? 18) + 'px');
+  r.setProperty('--card-radius', (app.cardRadius ?? 20) + 'px');
+  r.setProperty('--font-display', FONT_STACKS[app.fontDisplay] || FONT_STACKS['space-grotesk']);
+  r.setProperty('--font-body', FONT_STACKS[app.fontBody] || FONT_STACKS['space-grotesk']);
+
+  document.getElementById('bg-layer').style.backgroundImage = app.background ? `url('${app.background}')` : 'none';
+  document.body.style.cursor = app.cursor ? `url('${app.cursor}'), auto` : 'auto';
+
+  document.getElementById('username').classList.toggle('glow', !!app.usernameGlow);
+  document.getElementById('avatar-wrap').classList.toggle('glow', !!app.avatarGlow);
+  document.getElementById('sound-toggle').classList.toggle('hidden', !app.showSoundToggle);
+  document.getElementById('views').classList.toggle('hidden', !app.showViews);
+  document.getElementById('status-dot').classList.toggle('hidden', !cfg.discordId);
+
+  const overlay = document.getElementById('bg-overlay');
+  overlay.style.opacity = app.overlayStrength != null ? (app.overlayStrength / 100) : 1;
+
+  if (app.particles) {
+    startParticles(colors.accent);
+  } else {
+    stopParticles();
   }
-  if (cfg.appearance.cursor) {
-    document.body.style.cursor = `url('${cfg.appearance.cursor}'), auto`;
-  }
-  if (cfg.appearance.usernameGlow) {
-    document.getElementById('username').classList.add('glow');
-  }
+
   document.title = '@' + (cfg.username || '');
 }
 
@@ -304,11 +409,9 @@ function renderProfile(cfg) {
   });
 
   if (cfg.audio) {
-    const audioEl = document.getElementById('bg-audio');
-    audioEl.src = cfg.audio;
+    document.getElementById('bg-audio').src = cfg.audio;
   }
 
-  // view counter (local, per-browser demo — swap for a real counter API if you want global counts)
   const key = 'profile_views_' + (cfg.username || 'default');
   let views = parseInt(localStorage.getItem(key) || '0', 10) + 1;
   localStorage.setItem(key, views);
@@ -330,7 +433,7 @@ async function loadLanyard(discordId) {
     const dot = document.getElementById('status-dot');
     dot.className = 'status-dot ' + (d.discord_status || 'offline');
 
-    const activity = (d.activities || []).find(a => a.type !== 4) || null; // skip custom-status-only
+    const activity = (d.activities || []).find(a => a.type !== 4) || null;
     const activityEl = document.getElementById('activity');
     if (activity) {
       activityEl.classList.add('show');
@@ -364,9 +467,11 @@ async function init() {
   }
 }
 
-// live preview support: when embedded in admin.html, accept pushed profile updates
+// live preview: accept full profile pushes from admin.html — always applies the WHOLE state,
+// so every field (avatar, bg, colors...) is always present, nothing gets wiped by a partial update
 window.addEventListener('message', (e) => {
   if (e.data?.type === 'preview-update' && e.data.profile) {
+    document.getElementById('card').classList.add('no-anim');
     applyTheme(e.data.profile);
     renderProfile(e.data.profile);
   }
@@ -380,6 +485,14 @@ document.getElementById('sound-toggle').addEventListener('click', () => {
   } else {
     audio.pause();
     btn.textContent = '🔇';
+  }
+});
+
+window.addEventListener('resize', () => {
+  const canvas = document.getElementById('particles');
+  if (canvas.classList.contains('show')) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   }
 });
 

@@ -27,7 +27,7 @@
   }
 
   #sidebar {
-    width: 420px;
+    width: 440px;
     flex-shrink: 0;
     border-right: 1px solid var(--border);
     padding: 28px 24px 100px;
@@ -53,15 +53,25 @@
   h1 { font-size: 18px; margin: 0 0 4px; }
   .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
 
-  .section { margin-bottom: 28px; }
-  .section-title {
-    font-size: 12px;
+  details.section { margin-bottom: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+  details.section[open] { padding-bottom: 6px; }
+  summary.section-title {
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--muted);
-    margin-bottom: 12px;
-    font-weight: 600;
+    color: var(--text);
+    font-weight: 700;
+    padding: 14px 16px;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
+  summary.section-title::-webkit-details-marker { display: none; }
+  summary.section-title::after { content: '▸'; color: var(--muted); transition: transform 0.15s; }
+  details[open] > summary.section-title::after { transform: rotate(90deg); }
+  .section-body { padding: 4px 16px 14px; }
 
   label {
     display: block;
@@ -72,9 +82,9 @@
   }
   label:first-child { margin-top: 0; }
 
-  input[type=text], input[type=url], textarea {
+  input[type=text], input[type=url], textarea, select.full {
     width: 100%;
-    background: var(--panel);
+    background: #0d0d0f;
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 9px 11px;
@@ -82,23 +92,24 @@
     font-size: 13.5px;
     font-family: inherit;
   }
-  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
   textarea { resize: vertical; min-height: 60px; }
 
   .color-row { display: flex; align-items: center; gap: 8px; }
   input[type=color] {
     width: 38px; height: 32px; padding: 0; border: 1px solid var(--border);
-    border-radius: 6px; background: none; cursor: pointer;
+    border-radius: 6px; background: none; cursor: pointer; flex-shrink: 0;
   }
 
   .slider-row { display: flex; align-items: center; gap: 10px; }
   input[type=range] { flex: 1; accent-color: var(--accent); }
-  .slider-val { font-size: 12px; color: var(--muted); width: 42px; text-align: right; }
+  .slider-val { font-size: 12px; color: var(--muted); width: 46px; text-align: right; flex-shrink: 0; }
 
-  .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 12px; }
+  .toggle-row span { font-size: 13px; color: #c7c7cc; }
   .toggle {
     width: 40px; height: 22px; border-radius: 11px; background: #333;
-    position: relative; cursor: pointer; transition: background 0.15s;
+    position: relative; cursor: pointer; transition: background 0.15s; flex-shrink: 0;
   }
   .toggle.on { background: var(--accent); }
   .toggle::after {
@@ -107,42 +118,30 @@
   }
   .toggle.on::after { left: 20px; }
 
-  .social-item {
-    display: flex; gap: 6px; margin-top: 8px; align-items: center;
-  }
-  .social-item select {
-    background: var(--panel); border: 1px solid var(--border); color: var(--text);
-    border-radius: 6px; padding: 8px; font-size: 13px;
-  }
+  .social-item { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+  .social-item select { background: #0d0d0f; border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 8px; font-size: 13px; }
   .social-item input { flex: 1; }
-  .icon-btn {
-    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px;
-    padding: 4px 8px;
-  }
+  .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 4px 8px; }
   .icon-btn:hover { color: var(--danger); }
 
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer;
-    font-size: 13px; font-weight: 600; font-family: inherit;
-  }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); }
-  .btn-secondary { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
-  .btn-secondary:hover { background: #1d1d21; }
+  .btn-secondary { background: #1c1c20; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #232327; }
   .btn-block { width: 100%; margin-top: 6px; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-remove-img { background: none; border: none; color: var(--danger); font-size: 11px; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 8px; }
 
-  .file-input-wrap {
-    display: flex; align-items: center; gap: 8px; margin-top: 6px;
-  }
+  .file-input-wrap { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
   .file-input-wrap input[type=file] { display: none; }
+  .thumb { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border); }
 
   #save-bar {
     position: fixed;
-    bottom: 0; left: 0; width: 420px;
+    bottom: 0; left: 0; width: 440px;
     padding: 16px 24px;
-    background: rgba(13,13,15,0.92);
+    background: rgba(13,13,15,0.95);
     backdrop-filter: blur(10px);
     border-top: 1px solid var(--border);
     display: flex; gap: 10px; align-items: center;
@@ -151,14 +150,16 @@
   #save-status.ok { color: var(--success); }
   #save-status.err { color: var(--danger); }
 
-  #gh-setup {
-    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
-    padding: 16px; margin-bottom: 24px; font-size: 13px; line-height: 1.6;
-  }
+  #gh-setup { margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
   #gh-setup a { color: var(--accent); }
-  #gh-setup.connected { border-color: var(--success); }
+  #gh-setup.connected summary.section-title { color: var(--success); }
 
-  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .preset-swatch {
+    width: 44px; height: 44px; border-radius: 8px; cursor: pointer; border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+  .preset-swatch:hover { border-color: var(--accent); }
 
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -170,99 +171,140 @@
   <h1>Panel edycji</h1>
   <div class="subtitle">Zmiany zapisują się do Twojego repo na GitHub</div>
 
-  <div id="gh-setup">
-    <strong>Połączenie z GitHub</strong>
-    <div style="margin-top:8px;">
+  <details class="section" id="gh-setup" open>
+    <summary class="section-title">Połączenie z GitHub</summary>
+    <div class="section-body">
       <label>Twój GitHub token (Personal Access Token)</label>
       <input type="text" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
       <label>Repozytorium (użytkownik/repo)</label>
       <input type="text" id="gh-repo" placeholder="twojnick/discord-bio">
       <button class="btn btn-secondary btn-block" id="gh-connect" style="margin-top:10px;">Połącz i wczytaj profil</button>
+      <div style="margin-top:10px; color: var(--muted); font-size:12px;">
+        Nie masz tokena? <a href="https://github.com/settings/tokens/new?description=discord-bio-admin&scopes=repo" target="_blank">Wygeneruj tutaj</a> (zaznacz <code>repo</code>), wklej powyżej. Zapisuje się tylko lokalnie w przeglądarce.
+      </div>
     </div>
-    <div style="margin-top:10px; color: var(--muted); font-size:12px;">
-      Nie masz tokena? <a href="https://github.com/settings/tokens/new?description=discord-bio-admin&scopes=repo" target="_blank">Wygeneruj tutaj</a> (zaznacz uprawnienie <code>repo</code>), skopiuj i wklej powyżej. Token zapisuje się tylko lokalnie w Twojej przeglądarce.
-    </div>
-  </div>
+  </details>
 
-  <div class="section">
-    <div class="section-title">Podstawowe</div>
-    <label>Nazwa użytkownika (Discord)</label>
-    <input type="text" id="f-username">
-    <label>Wyświetlana nazwa</label>
-    <input type="text" id="f-displayName">
-    <label>Zaimki</label>
-    <input type="text" id="f-pronouns" placeholder="np. on/jego">
-    <label>Opis</label>
-    <textarea id="f-description"></textarea>
-    <label>Discord ID (do statusu na żywo)</label>
-    <input type="text" id="f-discordId" placeholder="123456789012345678">
-  </div>
+  <details class="section" open>
+    <summary class="section-title">Podstawowe</summary>
+    <div class="section-body">
+      <label>Nazwa użytkownika (Discord)</label>
+      <input type="text" id="f-username">
+      <label>Wyświetlana nazwa</label>
+      <input type="text" id="f-displayName">
+      <label>Zaimki</label>
+      <input type="text" id="f-pronouns" placeholder="np. on/jego">
+      <label>Opis</label>
+      <textarea id="f-description"></textarea>
+      <label>Discord ID (status na żywo)</label>
+      <input type="text" id="f-discordId" placeholder="123456789012345678">
+    </div>
+  </details>
 
-  <div class="section">
-    <div class="section-title">Media</div>
-    <label>Avatar</label>
-    <div class="file-input-wrap">
-      <button class="btn btn-secondary" id="btn-avatar">Wgraj obraz</button>
-      <input type="file" id="f-avatar-file" accept="image/*">
-      <span id="avatar-filename" style="font-size:12px; color:var(--muted);"></span>
+  <details class="section">
+    <summary class="section-title">Media</summary>
+    <div class="section-body">
+      <label>Avatar</label>
+      <div class="file-input-wrap">
+        <button class="btn btn-secondary" id="btn-avatar">Wgraj obraz</button>
+        <input type="file" id="f-avatar-file" accept="image/*">
+        <img class="thumb" id="avatar-thumb" style="display:none;">
+        <button class="btn-remove-img" data-target="avatar">usuń</button>
+      </div>
+      <label>Tło strony</label>
+      <div class="file-input-wrap">
+        <button class="btn btn-secondary" id="btn-bg">Wgraj obraz</button>
+        <input type="file" id="f-bg-file" accept="image/*">
+        <img class="thumb" id="bg-thumb" style="display:none;">
+        <button class="btn-remove-img" data-target="background">usuń</button>
+      </div>
+      <label>Custom cursor</label>
+      <div class="file-input-wrap">
+        <button class="btn btn-secondary" id="btn-cursor">Wgraj obraz</button>
+        <input type="file" id="f-cursor-file" accept="image/*">
+        <img class="thumb" id="cursor-thumb" style="display:none;">
+        <button class="btn-remove-img" data-target="cursor">usuń</button>
+      </div>
+      <label>Dźwięk w tle (mp3)</label>
+      <div class="file-input-wrap">
+        <button class="btn btn-secondary" id="btn-audio">Wgraj plik</button>
+        <input type="file" id="f-audio-file" accept="audio/*">
+        <span id="audio-filename" style="font-size:12px; color:var(--muted);"></span>
+        <button class="btn-remove-img" data-target="audio">usuń</button>
+      </div>
     </div>
-    <label>Tło</label>
-    <div class="file-input-wrap">
-      <button class="btn btn-secondary" id="btn-bg">Wgraj obraz</button>
-      <input type="file" id="f-bg-file" accept="image/*">
-      <span id="bg-filename" style="font-size:12px; color:var(--muted);"></span>
-    </div>
-    <label>Custom cursor (opcjonalnie)</label>
-    <div class="file-input-wrap">
-      <button class="btn btn-secondary" id="btn-cursor">Wgraj obraz</button>
-      <input type="file" id="f-cursor-file" accept="image/*">
-      <span id="cursor-filename" style="font-size:12px; color:var(--muted);"></span>
-    </div>
-    <label>Dźwięk w tle (mp3, opcjonalnie)</label>
-    <div class="file-input-wrap">
-      <button class="btn btn-secondary" id="btn-audio">Wgraj plik</button>
-      <input type="file" id="f-audio-file" accept="audio/*">
-      <span id="audio-filename" style="font-size:12px; color:var(--muted);"></span>
-    </div>
-  </div>
+  </details>
 
-  <div class="section">
-    <div class="section-title">Kolory</div>
-    <label>Akcent</label>
-    <div class="color-row"><input type="color" id="f-accent"><input type="text" id="f-accent-hex"></div>
-    <label>Tekst</label>
-    <div class="color-row"><input type="color" id="f-text"><input type="text" id="f-text-hex"></div>
-    <label>Tło (jeśli brak obrazka)</label>
-    <div class="color-row"><input type="color" id="f-background"><input type="text" id="f-background-hex"></div>
-    <label>Ikony</label>
-    <div class="color-row"><input type="color" id="f-icon"><input type="text" id="f-icon-hex"></div>
-    <label>Poświata (glow)</label>
-    <div class="color-row"><input type="color" id="f-glow"><input type="text" id="f-glow-hex"></div>
-  </div>
+  <details class="section" open>
+    <summary class="section-title">Kolory</summary>
+    <div class="section-body">
+      <label>Gotowe zestawy</label>
+      <div class="preset-row" id="presets"></div>
 
-  <div class="section">
-    <div class="section-title">Efekty</div>
-    <label>Przezroczystość karty</label>
-    <div class="slider-row">
-      <input type="range" id="f-cardOpacity" min="10" max="100" value="55">
-      <span class="slider-val" id="f-cardOpacity-val">55%</span>
+      <label>Akcent (nazwa użytkownika, linki)</label>
+      <div class="color-row"><input type="color" id="f-accent"><input type="text" id="f-accent-hex"></div>
+      <label>Tekst / opis</label>
+      <div class="color-row"><input type="color" id="f-text"><input type="text" id="f-text-hex"></div>
+      <label>Tło strony (gdy brak obrazka)</label>
+      <div class="color-row"><input type="color" id="f-background"><input type="text" id="f-background-hex"></div>
+      <label>Karta profilu (tint pod blurem)</label>
+      <div class="color-row"><input type="color" id="f-cardTint"><input type="text" id="f-cardTint-hex"></div>
+      <label>Ikony social</label>
+      <div class="color-row"><input type="color" id="f-icon"><input type="text" id="f-icon-hex"></div>
+      <label>Poświata (glow)</label>
+      <div class="color-row"><input type="color" id="f-glow"><input type="text" id="f-glow-hex"></div>
     </div>
-    <label>Rozmycie tła karty</label>
-    <div class="slider-row">
-      <input type="range" id="f-blurPx" min="0" max="60" value="18">
-      <span class="slider-val" id="f-blurPx-val">18px</span>
-    </div>
-    <div class="toggle-row">
-      <span>Poświata na nazwie użytkownika</span>
-      <div class="toggle" id="f-usernameGlow"></div>
-    </div>
-  </div>
+  </details>
 
-  <div class="section">
-    <div class="section-title">Social linki</div>
-    <div id="socials-list"></div>
-    <button class="btn btn-secondary btn-block" id="add-social" style="margin-top:10px;">+ Dodaj link</button>
-  </div>
+  <details class="section">
+    <summary class="section-title">Karta i efekty</summary>
+    <div class="section-body">
+      <label>Przezroczystość karty</label>
+      <div class="slider-row"><input type="range" id="f-cardOpacity" min="0" max="100" value="55"><span class="slider-val" id="f-cardOpacity-val">55%</span></div>
+      <label>Rozmycie karty</label>
+      <div class="slider-row"><input type="range" id="f-blurPx" min="0" max="60" value="18"><span class="slider-val" id="f-blurPx-val">18px</span></div>
+      <label>Zaokrąglenie rogów karty</label>
+      <div class="slider-row"><input type="range" id="f-cardRadius" min="0" max="40" value="20"><span class="slider-val" id="f-cardRadius-val">20px</span></div>
+      <label>Ciemność nakładki na tło</label>
+      <div class="slider-row"><input type="range" id="f-overlayStrength" min="0" max="100" value="100"><span class="slider-val" id="f-overlayStrength-val">100%</span></div>
+
+      <div class="toggle-row"><span>Poświata na nazwie użytkownika</span><div class="toggle" id="f-usernameGlow"></div></div>
+      <div class="toggle-row"><span>Poświata wokół avatara</span><div class="toggle" id="f-avatarGlow"></div></div>
+      <div class="toggle-row"><span>Unoszące się cząsteczki w tle</span><div class="toggle" id="f-particles"></div></div>
+      <div class="toggle-row"><span>Pokaż przycisk dźwięku</span><div class="toggle" id="f-showSoundToggle"></div></div>
+      <div class="toggle-row"><span>Pokaż licznik wyświetleń</span><div class="toggle" id="f-showViews"></div></div>
+    </div>
+  </details>
+
+  <details class="section">
+    <summary class="section-title">Typografia</summary>
+    <div class="section-body">
+      <label>Font nazwy użytkownika</label>
+      <select class="full" id="f-fontDisplay">
+        <option value="space-grotesk">Space Grotesk (nowoczesny)</option>
+        <option value="system">Systemowy (neutralny)</option>
+        <option value="mono">Mono (techniczny)</option>
+        <option value="serif">Serif (elegancki)</option>
+        <option value="rounded">Zaokrąglony (miękki)</option>
+      </select>
+      <label>Font opisu i tekstu</label>
+      <select class="full" id="f-fontBody">
+        <option value="space-grotesk">Space Grotesk (nowoczesny)</option>
+        <option value="system">Systemowy (neutralny)</option>
+        <option value="mono">Mono (techniczny)</option>
+        <option value="serif">Serif (elegancki)</option>
+        <option value="rounded">Zaokrąglony (miękki)</option>
+      </select>
+    </div>
+  </details>
+
+  <details class="section" open>
+    <summary class="section-title">Social linki</summary>
+    <div class="section-body">
+      <div id="socials-list"></div>
+      <button class="btn btn-secondary btn-block" id="add-social" style="margin-top:10px;">+ Dodaj link</button>
+    </div>
+  </details>
 </div>
 
 <div id="save-bar">
@@ -277,8 +319,18 @@
 <script>
 const SOCIAL_OPTIONS = ['discord','github','spotify','instagram','twitter','youtube','twitch','telegram','tiktok','linkedin','website'];
 
+const COLOR_PRESETS = [
+  { name: 'Fiolet', accent:'#c9b6ff', text:'#ffffff', background:'#0a0a0a', cardTint:'#14101f', icon:'#ffffff', glow:'#7c5cff' },
+  { name: 'Neon', accent:'#39ff8f', text:'#ffffff', background:'#050505', cardTint:'#081208', icon:'#ffffff', glow:'#39ff8f' },
+  { name: 'Krew', accent:'#ff5c5c', text:'#ffffff', background:'#0a0505', cardTint:'#180a0a', icon:'#ffffff', glow:'#ff2d2d' },
+  { name: 'Lód', accent:'#7ed6ff', text:'#ffffff', background:'#050a0f', cardTint:'#0a141c', icon:'#ffffff', glow:'#4fc3f7' },
+  { name: 'Złoto', accent:'#ffd479', text:'#ffffff', background:'#0a0805', cardTint:'#1a1408', icon:'#ffffff', glow:'#ffb347' },
+  { name: 'Mono', accent:'#ffffff', text:'#ffffff', background:'#0a0a0a', cardTint:'#0f0f12', icon:'#ffffff', glow:'#888888' }
+];
+
 let state = null;
 let gh = { token: '', repo: '', sha: null };
+const pendingUploads = {}; // path -> base64 content, cleared after successful save
 
 function $(id) { return document.getElementById(id); }
 
@@ -287,9 +339,46 @@ function defaultProfile() {
     username: 'twojnick', displayName: 'Twój Nick', pronouns: '', description: '', discordId: '',
     avatar: '', audio: '',
     socials: [{ icon: 'discord', url: '' }],
-    colors: { accent: '#ffffff', text: '#ffffff', background: '#0a0a0a', icon: '#ffffff', glow: '#7c5cff' },
-    appearance: { background: '', cursor: '', cardOpacity: 55, blurPx: 18, usernameGlow: false }
+    colors: { accent: '#ffffff', text: '#ffffff', background: '#0a0a0a', cardTint: '#0f0f12', icon: '#ffffff', glow: '#7c5cff' },
+    appearance: {
+      background: '', cursor: '', cardOpacity: 55, blurPx: 18, cardRadius: 20,
+      overlayStrength: 100, usernameGlow: false, avatarGlow: false, particles: false,
+      showSoundToggle: true, showViews: true, fontDisplay: 'space-grotesk', fontBody: 'space-grotesk'
+    }
   };
+}
+
+function ensureShape(obj) {
+  // merges loaded profile with defaults so older/incomplete profile.json files never crash the panel
+  const d = defaultProfile();
+  return {
+    ...d, ...obj,
+    colors: { ...d.colors, ...(obj.colors || {}) },
+    appearance: { ...d.appearance, ...(obj.appearance || {}) },
+    socials: (obj.socials && obj.socials.length) ? obj.socials : d.socials
+  };
+}
+
+function renderPresets() {
+  const wrap = $('presets');
+  wrap.innerHTML = '';
+  COLOR_PRESETS.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'preset-swatch';
+    el.style.background = `linear-gradient(135deg, ${p.background}, ${p.accent})`;
+    el.title = p.name;
+    el.addEventListener('click', () => {
+      state.colors.accent = p.accent;
+      state.colors.text = p.text;
+      state.colors.background = p.background;
+      state.colors.cardTint = p.cardTint;
+      state.colors.icon = p.icon;
+      state.colors.glow = p.glow;
+      loadFormFromState();
+      syncAndPreview();
+    });
+    wrap.appendChild(el);
+  });
 }
 
 function loadFormFromState() {
@@ -299,17 +388,41 @@ function loadFormFromState() {
   $('f-description').value = state.description || '';
   $('f-discordId').value = state.discordId || '';
 
-  for (const k of ['accent','text','background','icon','glow']) {
+  for (const k of ['accent','text','background','cardTint','icon','glow']) {
     $('f-' + k).value = state.colors[k];
     $('f-' + k + '-hex').value = state.colors[k];
   }
+
   $('f-cardOpacity').value = state.appearance.cardOpacity;
   $('f-cardOpacity-val').textContent = state.appearance.cardOpacity + '%';
   $('f-blurPx').value = state.appearance.blurPx;
   $('f-blurPx-val').textContent = state.appearance.blurPx + 'px';
+  $('f-cardRadius').value = state.appearance.cardRadius;
+  $('f-cardRadius-val').textContent = state.appearance.cardRadius + 'px';
+  $('f-overlayStrength').value = state.appearance.overlayStrength;
+  $('f-overlayStrength-val').textContent = state.appearance.overlayStrength + '%';
+
   $('f-usernameGlow').classList.toggle('on', !!state.appearance.usernameGlow);
+  $('f-avatarGlow').classList.toggle('on', !!state.appearance.avatarGlow);
+  $('f-particles').classList.toggle('on', !!state.appearance.particles);
+  $('f-showSoundToggle').classList.toggle('on', !!state.appearance.showSoundToggle);
+  $('f-showViews').classList.toggle('on', !!state.appearance.showViews);
+
+  $('f-fontDisplay').value = state.appearance.fontDisplay || 'space-grotesk';
+  $('f-fontBody').value = state.appearance.fontBody || 'space-grotesk';
+
+  updateThumb('avatar-thumb', state.avatar);
+  updateThumb('bg-thumb', state.appearance.background);
+  updateThumb('cursor-thumb', state.appearance.cursor);
+  $('audio-filename').textContent = state.audio ? state.audio.split('/').pop() : '';
 
   renderSocials();
+}
+
+function updateThumb(elId, src) {
+  const el = $(elId);
+  if (src) { el.src = src; el.style.display = 'inline-block'; }
+  else { el.style.display = 'none'; }
 }
 
 function renderSocials() {
@@ -344,17 +457,13 @@ function renderSocials() {
 
 function bindSimple(id, path) {
   $(id).addEventListener('input', () => {
-    const parts = path.split('.');
-    let obj = state;
-    for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
-    obj[parts[parts.length - 1]] = $(id).value;
+    state[path] = $(id).value;
     syncAndPreview();
   });
 }
-
 ['username','displayName','pronouns','description','discordId'].forEach(f => bindSimple('f-' + f, f));
 
-['accent','text','background','icon','glow'].forEach(k => {
+['accent','text','background','cardTint','icon','glow'].forEach(k => {
   $('f-' + k).addEventListener('input', () => {
     state.colors[k] = $('f-' + k).value;
     $('f-' + k + '-hex').value = $('f-' + k).value;
@@ -367,21 +476,34 @@ function bindSimple(id, path) {
   });
 });
 
-$('f-cardOpacity').addEventListener('input', () => {
-  state.appearance.cardOpacity = parseInt($('f-cardOpacity').value, 10);
-  $('f-cardOpacity-val').textContent = state.appearance.cardOpacity + '%';
-  syncAndPreview();
-});
-$('f-blurPx').addEventListener('input', () => {
-  state.appearance.blurPx = parseInt($('f-blurPx').value, 10);
-  $('f-blurPx-val').textContent = state.appearance.blurPx + 'px';
-  syncAndPreview();
-});
-$('f-usernameGlow').addEventListener('click', () => {
-  state.appearance.usernameGlow = !state.appearance.usernameGlow;
-  $('f-usernameGlow').classList.toggle('on', state.appearance.usernameGlow);
-  syncAndPreview();
-});
+function bindSlider(id, path, suffix) {
+  $(id).addEventListener('input', () => {
+    const v = parseInt($(id).value, 10);
+    state.appearance[path] = v;
+    $(id + '-val').textContent = v + suffix;
+    syncAndPreview();
+  });
+}
+bindSlider('f-cardOpacity', 'cardOpacity', '%');
+bindSlider('f-blurPx', 'blurPx', 'px');
+bindSlider('f-cardRadius', 'cardRadius', 'px');
+bindSlider('f-overlayStrength', 'overlayStrength', '%');
+
+function bindToggle(id, path) {
+  $(id).addEventListener('click', () => {
+    state.appearance[path] = !state.appearance[path];
+    $(id).classList.toggle('on', state.appearance[path]);
+    syncAndPreview();
+  });
+}
+bindToggle('f-usernameGlow', 'usernameGlow');
+bindToggle('f-avatarGlow', 'avatarGlow');
+bindToggle('f-particles', 'particles');
+bindToggle('f-showSoundToggle', 'showSoundToggle');
+bindToggle('f-showViews', 'showViews');
+
+$('f-fontDisplay').addEventListener('change', () => { state.appearance.fontDisplay = $('f-fontDisplay').value; syncAndPreview(); });
+$('f-fontBody').addEventListener('change', () => { state.appearance.fontBody = $('f-fontBody').value; syncAndPreview(); });
 
 $('add-social').addEventListener('click', () => {
   state.socials.push({ icon: 'website', url: '' });
@@ -389,56 +511,60 @@ $('add-social').addEventListener('click', () => {
   syncAndPreview();
 });
 
-// --- file uploads (converted to base64 data URLs for instant preview; on save, uploaded to repo as real files) ---
-const pendingUploads = {}; // path -> {content: base64, targetField: 'avatar'|'appearance.background'|...}
-
-function wireFileInput(btnId, fileId, filenameId, targetSetter, folder) {
+// --- file uploads: converted to base64 data URLs immediately for both preview AND storage in state,
+// so state.avatar / state.appearance.background / etc. always hold a real, renderable value —
+// nothing ever "disappears" when a different field changes. On save, the base64 is uploaded as a
+// real file to the repo and the field is swapped to point at that file's path.
+function wireFileInput(btnId, fileId, thumbId, setPath, folder, isAudio) {
   $(btnId).addEventListener('click', () => $(fileId).click());
   $(fileId).addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    $(filenameId).textContent = file.name;
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
+      setPath(dataUrl); // preview immediately using the data URL itself — always valid, never overwritten by other fields
       const base64 = dataUrl.split(',')[1];
       const ext = file.name.split('.').pop();
-      const path = `${folder}/${Date.now()}.${ext}`;
-      pendingUploads[path] = base64;
-      targetSetter(path);
-      syncAndPreview(dataUrl, path);
+      const repoPath = `${folder}/${Date.now()}.${ext}`;
+      pendingUploads[repoPath] = { base64, appliesTo: setPath, dataUrl };
+      if (isAudio) $('audio-filename').textContent = file.name;
+      else updateThumb(thumbId, dataUrl);
+      syncAndPreview();
     };
     reader.readAsDataURL(file);
   });
 }
 
-wireFileInput('btn-avatar', 'f-avatar-file', 'avatar-filename', (path) => { state.avatar = path; }, 'assets');
-wireFileInput('btn-bg', 'f-bg-file', 'bg-filename', (path) => { state.appearance.background = path; }, 'assets');
-wireFileInput('btn-cursor', 'f-cursor-file', 'cursor-filename', (path) => { state.appearance.cursor = path; }, 'assets');
-wireFileInput('btn-audio', 'f-audio-file', 'audio-filename', (path) => { state.audio = path; }, 'assets');
+wireFileInput('btn-avatar', 'f-avatar-file', 'avatar-thumb', (v) => { state.avatar = v; }, 'assets');
+wireFileInput('btn-bg', 'f-bg-file', 'bg-thumb', (v) => { state.appearance.background = v; }, 'assets');
+wireFileInput('btn-cursor', 'f-cursor-file', 'cursor-thumb', (v) => { state.appearance.cursor = v; }, 'assets');
+wireFileInput('btn-audio', 'f-audio-file', null, (v) => { state.audio = v; }, 'assets', true);
 
-function syncAndPreview(previewDataUrl, previewPath) {
+document.querySelectorAll('.btn-remove-img').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.target;
+    if (target === 'avatar') { state.avatar = ''; updateThumb('avatar-thumb', ''); }
+    if (target === 'background') { state.appearance.background = ''; updateThumb('bg-thumb', ''); }
+    if (target === 'cursor') { state.appearance.cursor = ''; updateThumb('cursor-thumb', ''); }
+    if (target === 'audio') { state.audio = ''; $('audio-filename').textContent = ''; }
+    syncAndPreview();
+  });
+});
+
+function syncAndPreview() {
   const frame = $('preview-frame');
   if (!frame.contentWindow) return;
-  // Post a live preview object; for uploaded-but-unsaved files, substitute the local data URL so preview shows immediately
-  const previewState = JSON.parse(JSON.stringify(state));
-  if (previewDataUrl && previewPath) {
-    if (previewState.avatar === previewPath) previewState.avatar = previewDataUrl;
-    if (previewState.appearance.background === previewPath) previewState.appearance.background = previewDataUrl;
-    if (previewState.appearance.cursor === previewPath) previewState.appearance.cursor = previewDataUrl;
-    if (previewState.audio === previewPath) previewState.audio = previewDataUrl;
-  }
+  // state already holds real data-URLs for any pending uploads, so the full object is always
+  // self-consistent — no partial-preview substitution logic needed here.
   try {
-    frame.contentWindow.postMessage({ type: 'preview-update', profile: previewState }, '*');
+    frame.contentWindow.postMessage({ type: 'preview-update', profile: state }, '*');
   } catch (e) {}
 }
 
 // --- GitHub connection ---
 function ghHeaders() {
-  return {
-    'Authorization': `Bearer ${gh.token}`,
-    'Accept': 'application/vnd.github+json'
-  };
+  return { 'Authorization': `Bearer ${gh.token}`, 'Accept': 'application/vnd.github+json' };
 }
 
 async function ghGetFile(path) {
@@ -473,7 +599,7 @@ $('gh-connect').addEventListener('click', async () => {
   try {
     const file = await ghGetFile('profile.json');
     if (file) {
-      state = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+      state = ensureShape(JSON.parse(decodeURIComponent(escape(atob(file.content)))));
       gh.sha = file.sha;
     } else {
       state = defaultProfile();
@@ -495,17 +621,27 @@ $('save-btn').addEventListener('click', async () => {
   $('save-status').textContent = 'Zapisywanie...';
   $('save-status').className = '';
   try {
-    // upload any pending files first
-    for (const [path, base64] of Object.entries(pendingUploads)) {
-      const existing = await ghGetFile(path).catch(() => null);
-      await ghPutFile(path, base64, `Upload ${path}`, existing?.sha);
+    const toSave = JSON.parse(JSON.stringify(state));
+
+    // upload any pending files, then repoint the matching state field at the real repo path
+    for (const [repoPath, upload] of Object.entries(pendingUploads)) {
+      const existing = await ghGetFile(repoPath).catch(() => null);
+      await ghPutFile(repoPath, upload.base64, `Upload ${repoPath}`, existing?.sha);
+      if (toSave.avatar === upload.dataUrl) toSave.avatar = repoPath;
+      if (toSave.appearance.background === upload.dataUrl) toSave.appearance.background = repoPath;
+      if (toSave.appearance.cursor === upload.dataUrl) toSave.appearance.cursor = repoPath;
+      if (toSave.audio === upload.dataUrl) toSave.audio = repoPath;
     }
-    // then save profile.json
-    const jsonStr = JSON.stringify(state, null, 2);
+
+    const jsonStr = JSON.stringify(toSave, null, 2);
     const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
     const result = await ghPutFile('profile.json', b64, 'Update profile via admin panel', gh.sha);
     gh.sha = result.content.sha;
+
+    state = toSave; // switch local state to the saved repo-path version too
     Object.keys(pendingUploads).forEach(k => delete pendingUploads[k]);
+    loadFormFromState();
+
     $('save-status').textContent = '✓ Zapisano! Strona zaktualizuje się za ok. 30–60s.';
     $('save-status').className = 'ok';
   } catch (e) {
@@ -516,14 +652,15 @@ $('save-btn').addEventListener('click', async () => {
   }
 });
 
-// restore saved gh creds
 window.addEventListener('load', () => {
   const t = localStorage.getItem('gh_token');
   const r = localStorage.getItem('gh_repo');
   if (t) $('gh-token').value = t;
   if (r) $('gh-repo').value = r;
   state = defaultProfile();
+  renderPresets();
   loadFormFromState();
+  $('preview-frame').addEventListener('load', () => syncAndPreview());
 });
 </script>
 </body>
