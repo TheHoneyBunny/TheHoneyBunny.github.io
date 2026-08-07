@@ -4,12 +4,21 @@
   "pronouns": "",
   "description": "Opisz się tutaj — kilka słów o sobie, swoich zainteresowaniach albo cytat.",
   "discordId": "",
-  "avatar": "https://placehold.co/200x200/1a1a1a/ffffff?text=Avatar",
+  "avatar": "assets/1786096504141.jpeg",
   "audio": "",
   "socials": [
-    { "icon": "discord", "url": "" },
-    { "icon": "github", "url": "" },
-    { "icon": "spotify", "url": "" }
+    {
+      "icon": "discord",
+      "url": ""
+    },
+    {
+      "icon": "github",
+      "url": ""
+    },
+    {
+      "icon": "spotify",
+      "url": ""
+    }
   ],
   "colors": {
     "accent": "#ffffff",
@@ -19,7 +28,7 @@
     "glow": "#7c5cff"
   },
   "appearance": {
-    "background": "",
+    "background": "assets/1786096501294.jpg",
     "cursor": "",
     "cardOpacity": 55,
     "blurPx": 18,
