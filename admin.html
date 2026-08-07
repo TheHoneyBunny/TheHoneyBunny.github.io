@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel edycji — Twoje bio</title>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --panel: #161619;
+    --border: #262629;
+    --text: #f2f2f3;
+    --muted: #8a8a90;
+    --accent: #7c5cff;
+    --accent-hover: #6b4ce8;
+    --danger: #f23f43;
+    --success: #23a55a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  #sidebar {
+    width: 420px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding: 28px 24px 100px;
+    overflow-y: auto;
+    height: 100vh;
+  }
+
+  #preview-pane {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    position: relative;
+  }
+
+  #preview-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    color: #c7c7cc;
+  }
+  label:first-child { margin-top: 0; }
+
+  input[type=text], input[type=url], textarea {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 11px;
+    color: var(--text);
+    font-size: 13.5px;
+    font-family: inherit;
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 60px; }
+
+  .color-row { display: flex; align-items: center; gap: 8px; }
+  input[type=color] {
+    width: 38px; height: 32px; padding: 0; border: 1px solid var(--border);
+    border-radius: 6px; background: none; cursor: pointer;
+  }
+
+  .slider-row { display: flex; align-items: center; gap: 10px; }
+  input[type=range] { flex: 1; accent-color: var(--accent); }
+  .slider-val { font-size: 12px; color: var(--muted); width: 42px; text-align: right; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .toggle {
+    width: 40px; height: 22px; border-radius: 11px; background: #333;
+    position: relative; cursor: pointer; transition: background 0.15s;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+    border-radius: 50%; background: #fff; transition: left 0.15s;
+  }
+  .toggle.on::after { left: 20px; }
+
+  .social-item {
+    display: flex; gap: 6px; margin-top: 8px; align-items: center;
+  }
+  .social-item select {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 8px; font-size: 13px;
+  }
+  .social-item input { flex: 1; }
+  .icon-btn {
+    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px;
+    padding: 4px 8px;
+  }
+  .icon-btn:hover { color: var(--danger); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #1d1d21; }
+  .btn-block { width: 100%; margin-top: 6px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .file-input-wrap {
+    display: flex; align-items: center; gap: 8px; margin-top: 6px;
+  }
+  .file-input-wrap input[type=file] { display: none; }
+
+  #save-bar {
+    position: fixed;
+    bottom: 0; left: 0; width: 420px;
+    padding: 16px 24px;
+    background: rgba(13,13,15,0.92);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: center;
+  }
+  #save-status { font-size: 12px; color: var(--muted); }
+  #save-status.ok { color: var(--success); }
+  #save-status.err { color: var(--danger); }
+
+  #gh-setup {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; margin-bottom: 24px; font-size: 13px; line-height: 1.6;
+  }
+  #gh-setup a { color: var(--accent); }
+  #gh-setup.connected { border-color: var(--success); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <h1>Panel edycji</h1>
+  <div class="subtitle">Zmiany zapisują się do Twojego repo na GitHub</div>
+
+  <div id="gh-setup">
+    <strong>Połączenie z GitHub</strong>
+    <div style="margin-top:8px;">
+      <label>Twój GitHub token (Personal Access Token)</label>
+      <input type="text" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+      <label>Repozytorium (użytkownik/repo)</label>
+      <input type="text" id="gh-repo" placeholder="twojnick/discord-bio">
+      <button class="btn btn-secondary btn-block" id="gh-connect" style="margin-top:10px;">Połącz i wczytaj profil</button>
+    </div>
+    <div style="margin-top:10px; color: var(--muted); font-size:12px;">
+      Nie masz tokena? <a href="https://github.com/settings/tokens/new?description=discord-bio-admin&scopes=repo" target="_blank">Wygeneruj tutaj</a> (zaznacz uprawnienie <code>repo</code>), skopiuj i wklej powyżej. Token zapisuje się tylko lokalnie w Twojej przeglądarce.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Podstawowe</div>
+    <label>Nazwa użytkownika (Discord)</label>
+    <input type="text" id="f-username">
+    <label>Wyświetlana nazwa</label>
+    <input type="text" id="f-displayName">
+    <label>Zaimki</label>
+    <input type="text" id="f-pronouns" placeholder="np. on/jego">
+    <label>Opis</label>
+    <textarea id="f-description"></textarea>
+    <label>Discord ID (do statusu na żywo)</label>
+    <input type="text" id="f-discordId" placeholder="123456789012345678">
+  </div>
+
+  <div class="section">
+    <div class="section-title">Media</div>
+    <label>Avatar</label>
+    <div class="file-input-wrap">
+      <button class="btn btn-secondary" id="btn-avatar">Wgraj obraz</button>
+      <input type="file" id="f-avatar-file" accept="image/*">
+      <span id="avatar-filename" style="font-size:12px; color:var(--muted);"></span>
+    </div>
+    <label>Tło</label>
+    <div class="file-input-wrap">
+      <button class="btn btn-secondary" id="btn-bg">Wgraj obraz</button>
+      <input type="file" id="f-bg-file" accept="image/*">
+      <span id="bg-filename" style="font-size:12px; color:var(--muted);"></span>
+    </div>
+    <label>Custom cursor (opcjonalnie)</label>
+    <div class="file-input-wrap">
+      <button class="btn btn-secondary" id="btn-cursor">Wgraj obraz</button>
+      <input type="file" id="f-cursor-file" accept="image/*">
+      <span id="cursor-filename" style="font-size:12px; color:var(--muted);"></span>
+    </div>
+    <label>Dźwięk w tle (mp3, opcjonalnie)</label>
+    <div class="file-input-wrap">
+      <button class="btn btn-secondary" id="btn-audio">Wgraj plik</button>
+      <input type="file" id="f-audio-file" accept="audio/*">
+      <span id="audio-filename" style="font-size:12px; color:var(--muted);"></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Kolory</div>
+    <label>Akcent</label>
+    <div class="color-row"><input type="color" id="f-accent"><input type="text" id="f-accent-hex"></div>
+    <label>Tekst</label>
+    <div class="color-row"><input type="color" id="f-text"><input type="text" id="f-text-hex"></div>
+    <label>Tło (jeśli brak obrazka)</label>
+    <div class="color-row"><input type="color" id="f-background"><input type="text" id="f-background-hex"></div>
+    <label>Ikony</label>
+    <div class="color-row"><input type="color" id="f-icon"><input type="text" id="f-icon-hex"></div>
+    <label>Poświata (glow)</label>
+    <div class="color-row"><input type="color" id="f-glow"><input type="text" id="f-glow-hex"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Efekty</div>
+    <label>Przezroczystość karty</label>
+    <div class="slider-row">
+      <input type="range" id="f-cardOpacity" min="10" max="100" value="55">
+      <span class="slider-val" id="f-cardOpacity-val">55%</span>
+    </div>
+    <label>Rozmycie tła karty</label>
+    <div class="slider-row">
+      <input type="range" id="f-blurPx" min="0" max="60" value="18">
+      <span class="slider-val" id="f-blurPx-val">18px</span>
+    </div>
+    <div class="toggle-row">
+      <span>Poświata na nazwie użytkownika</span>
+      <div class="toggle" id="f-usernameGlow"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Social linki</div>
+    <div id="socials-list"></div>
+    <button class="btn btn-secondary btn-block" id="add-social" style="margin-top:10px;">+ Dodaj link</button>
+  </div>
+</div>
+
+<div id="save-bar">
+  <button class="btn btn-primary" id="save-btn">Zapisz i opublikuj</button>
+  <span id="save-status"></span>
+</div>
+
+<div id="preview-pane">
+  <iframe id="preview-frame" src="index.html"></iframe>
+</div>
+
+<script>
+const SOCIAL_OPTIONS = ['discord','github','spotify','instagram','twitter','youtube','twitch','telegram','tiktok','linkedin','website'];
+
+let state = null;
+let gh = { token: '', repo: '', sha: null };
+
+function $(id) { return document.getElementById(id); }
+
+function defaultProfile() {
+  return {
+    username: 'twojnick', displayName: 'Twój Nick', pronouns: '', description: '', discordId: '',
+    avatar: '', audio: '',
+    socials: [{ icon: 'discord', url: '' }],
+    colors: { accent: '#ffffff', text: '#ffffff', background: '#0a0a0a', icon: '#ffffff', glow: '#7c5cff' },
+    appearance: { background: '', cursor: '', cardOpacity: 55, blurPx: 18, usernameGlow: false }
+  };
+}
+
+function loadFormFromState() {
+  $('f-username').value = state.username || '';
+  $('f-displayName').value = state.displayName || '';
+  $('f-pronouns').value = state.pronouns || '';
+  $('f-description').value = state.description || '';
+  $('f-discordId').value = state.discordId || '';
+
+  for (const k of ['accent','text','background','icon','glow']) {
+    $('f-' + k).value = state.colors[k];
+    $('f-' + k + '-hex').value = state.colors[k];
+  }
+  $('f-cardOpacity').value = state.appearance.cardOpacity;
+  $('f-cardOpacity-val').textContent = state.appearance.cardOpacity + '%';
+  $('f-blurPx').value = state.appearance.blurPx;
+  $('f-blurPx-val').textContent = state.appearance.blurPx + 'px';
+  $('f-usernameGlow').classList.toggle('on', !!state.appearance.usernameGlow);
+
+  renderSocials();
+}
+
+function renderSocials() {
+  const list = $('socials-list');
+  list.innerHTML = '';
+  state.socials.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'social-item';
+    row.innerHTML = `
+      <select data-i="${i}" class="social-icon">
+        ${SOCIAL_OPTIONS.map(o => `<option value="${o}" ${o===s.icon?'selected':''}>${o}</option>`).join('')}
+      </select>
+      <input type="text" data-i="${i}" class="social-url" placeholder="https://..." value="${s.url || ''}">
+      <button class="icon-btn social-remove" data-i="${i}">✕</button>
+    `;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.social-icon').forEach(el => el.addEventListener('change', e => {
+    state.socials[e.target.dataset.i].icon = e.target.value;
+    syncAndPreview();
+  }));
+  list.querySelectorAll('.social-url').forEach(el => el.addEventListener('input', e => {
+    state.socials[e.target.dataset.i].url = e.target.value;
+    syncAndPreview();
+  }));
+  list.querySelectorAll('.social-remove').forEach(el => el.addEventListener('click', e => {
+    state.socials.splice(e.target.dataset.i, 1);
+    renderSocials();
+    syncAndPreview();
+  }));
+}
+
+function bindSimple(id, path) {
+  $(id).addEventListener('input', () => {
+    const parts = path.split('.');
+    let obj = state;
+    for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+    obj[parts[parts.length - 1]] = $(id).value;
+    syncAndPreview();
+  });
+}
+
+['username','displayName','pronouns','description','discordId'].forEach(f => bindSimple('f-' + f, f));
+
+['accent','text','background','icon','glow'].forEach(k => {
+  $('f-' + k).addEventListener('input', () => {
+    state.colors[k] = $('f-' + k).value;
+    $('f-' + k + '-hex').value = $('f-' + k).value;
+    syncAndPreview();
+  });
+  $('f-' + k + '-hex').addEventListener('change', () => {
+    state.colors[k] = $('f-' + k + '-hex').value;
+    $('f-' + k).value = $('f-' + k + '-hex').value;
+    syncAndPreview();
+  });
+});
+
+$('f-cardOpacity').addEventListener('input', () => {
+  state.appearance.cardOpacity = parseInt($('f-cardOpacity').value, 10);
+  $('f-cardOpacity-val').textContent = state.appearance.cardOpacity + '%';
+  syncAndPreview();
+});
+$('f-blurPx').addEventListener('input', () => {
+  state.appearance.blurPx = parseInt($('f-blurPx').value, 10);
+  $('f-blurPx-val').textContent = state.appearance.blurPx + 'px';
+  syncAndPreview();
+});
+$('f-usernameGlow').addEventListener('click', () => {
+  state.appearance.usernameGlow = !state.appearance.usernameGlow;
+  $('f-usernameGlow').classList.toggle('on', state.appearance.usernameGlow);
+  syncAndPreview();
+});
+
+$('add-social').addEventListener('click', () => {
+  state.socials.push({ icon: 'website', url: '' });
+  renderSocials();
+  syncAndPreview();
+});
+
+// --- file uploads (converted to base64 data URLs for instant preview; on save, uploaded to repo as real files) ---
+const pendingUploads = {}; // path -> {content: base64, targetField: 'avatar'|'appearance.background'|...}
+
+function wireFileInput(btnId, fileId, filenameId, targetSetter, folder) {
+  $(btnId).addEventListener('click', () => $(fileId).click());
+  $(fileId).addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    $(filenameId).textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      const base64 = dataUrl.split(',')[1];
+      const ext = file.name.split('.').pop();
+      const path = `${folder}/${Date.now()}.${ext}`;
+      pendingUploads[path] = base64;
+      targetSetter(path);
+      syncAndPreview(dataUrl, path);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+wireFileInput('btn-avatar', 'f-avatar-file', 'avatar-filename', (path) => { state.avatar = path; }, 'assets');
+wireFileInput('btn-bg', 'f-bg-file', 'bg-filename', (path) => { state.appearance.background = path; }, 'assets');
+wireFileInput('btn-cursor', 'f-cursor-file', 'cursor-filename', (path) => { state.appearance.cursor = path; }, 'assets');
+wireFileInput('btn-audio', 'f-audio-file', 'audio-filename', (path) => { state.audio = path; }, 'assets');
+
+function syncAndPreview(previewDataUrl, previewPath) {
+  const frame = $('preview-frame');
+  if (!frame.contentWindow) return;
+  // Post a live preview object; for uploaded-but-unsaved files, substitute the local data URL so preview shows immediately
+  const previewState = JSON.parse(JSON.stringify(state));
+  if (previewDataUrl && previewPath) {
+    if (previewState.avatar === previewPath) previewState.avatar = previewDataUrl;
+    if (previewState.appearance.background === previewPath) previewState.appearance.background = previewDataUrl;
+    if (previewState.appearance.cursor === previewPath) previewState.appearance.cursor = previewDataUrl;
+    if (previewState.audio === previewPath) previewState.audio = previewDataUrl;
+  }
+  try {
+    frame.contentWindow.postMessage({ type: 'preview-update', profile: previewState }, '*');
+  } catch (e) {}
+}
+
+// --- GitHub connection ---
+function ghHeaders() {
+  return {
+    'Authorization': `Bearer ${gh.token}`,
+    'Accept': 'application/vnd.github+json'
+  };
+}
+
+async function ghGetFile(path) {
+  const res = await fetch(`https://api.github.com/repos/${gh.repo}/contents/${path}`, { headers: ghHeaders() });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+async function ghPutFile(path, contentBase64, message, sha) {
+  const body = { message, content: contentBase64 };
+  if (sha) body.sha = sha;
+  const res = await fetch(`https://api.github.com/repos/${gh.repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `GitHub API error ${res.status}`);
+  }
+  return res.json();
+}
+
+$('gh-connect').addEventListener('click', async () => {
+  gh.token = $('gh-token').value.trim();
+  gh.repo = $('gh-repo').value.trim();
+  if (!gh.token || !gh.repo) { alert('Podaj token i repo (użytkownik/repo)'); return; }
+  localStorage.setItem('gh_token', gh.token);
+  localStorage.setItem('gh_repo', gh.repo);
+
+  $('gh-connect').textContent = 'Łączenie...';
+  try {
+    const file = await ghGetFile('profile.json');
+    if (file) {
+      state = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+      gh.sha = file.sha;
+    } else {
+      state = defaultProfile();
+      gh.sha = null;
+    }
+    loadFormFromState();
+    syncAndPreview();
+    $('gh-setup').classList.add('connected');
+    $('gh-connect').textContent = '✓ Połączono — profil wczytany';
+  } catch (e) {
+    alert('Nie udało się połączyć: ' + e.message);
+    $('gh-connect').textContent = 'Połącz i wczytaj profil';
+  }
+});
+
+$('save-btn').addEventListener('click', async () => {
+  if (!gh.token || !gh.repo) { alert('Najpierw połącz się z GitHub (u góry panelu).'); return; }
+  $('save-btn').disabled = true;
+  $('save-status').textContent = 'Zapisywanie...';
+  $('save-status').className = '';
+  try {
+    // upload any pending files first
+    for (const [path, base64] of Object.entries(pendingUploads)) {
+      const existing = await ghGetFile(path).catch(() => null);
+      await ghPutFile(path, base64, `Upload ${path}`, existing?.sha);
+    }
+    // then save profile.json
+    const jsonStr = JSON.stringify(state, null, 2);
+    const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    const result = await ghPutFile('profile.json', b64, 'Update profile via admin panel', gh.sha);
+    gh.sha = result.content.sha;
+    Object.keys(pendingUploads).forEach(k => delete pendingUploads[k]);
+    $('save-status').textContent = '✓ Zapisano! Strona zaktualizuje się za ok. 30–60s.';
+    $('save-status').className = 'ok';
+  } catch (e) {
+    $('save-status').textContent = '✗ Błąd: ' + e.message;
+    $('save-status').className = 'err';
+  } finally {
+    $('save-btn').disabled = false;
+  }
+});
+
+// restore saved gh creds
+window.addEventListener('load', () => {
+  const t = localStorage.getItem('gh_token');
+  const r = localStorage.getItem('gh_repo');
+  if (t) $('gh-token').value = t;
+  if (r) $('gh-repo').value = r;
+  state = defaultProfile();
+  loadFormFromState();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "username": "twojnick",
+  "displayName": "Twój Nick",
+  "pronouns": "",
+  "description": "Opisz się tutaj — kilka słów o sobie, swoich zainteresowaniach albo cytat.",
+  "discordId": "",
+  "avatar": "https://placehold.co/200x200/1a1a1a/ffffff?text=Avatar",
+  "audio": "",
+  "socials": [
+    { "icon": "discord", "url": "" },
+    { "icon": "github", "url": "" },
+    { "icon": "spotify", "url": "" }
+  ],
+  "colors": {
+    "accent": "#ffffff",
+    "text": "#ffffff",
+    "background": "#0a0a0a",
+    "icon": "#ffffff",
+    "glow": "#7c5cff"
+  },
+  "appearance": {
+    "background": "",
+    "cursor": "",
+    "cardOpacity": 55,
+    "blurPx": 18,
+    "usernameGlow": false
+  }
+}

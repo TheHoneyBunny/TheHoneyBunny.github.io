@@ -1,99 +1,389 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading...</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --accent: #ffffff;
+    --text: #ffffff;
+    --bg: #0a0a0a;
+    --icon: #ffffff;
+    --glow: #7c5cff;
+    --card-blur: 18px;
+    --card-opacity: 0.55;
+  }
 
-        body {
-            background-color: #f7f7f8;
-            color: #111;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .container {
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
+  html, body {
+    height: 100%;
+    font-family: 'Space Grotesk', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
 
-        .avatar {
-            width: 96px;
-            height: 96px;
-            border-radius: 50%;
-            margin-bottom: 16px;
-            object-fit: cover;
-            border: 2px solid #eaeaea;
-        }
+  @font-face {
+    font-family: 'Space Grotesk';
+    src: local('Space Grotesk');
+  }
 
-        h1 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            letter-spacing: -0.02em;
-        }
+  #bg-layer {
+    position: fixed;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(0px);
+    transform: scale(1.05);
+    z-index: 0;
+  }
 
-        .bio {
-            font-size: 0.95rem;
-            color: #666;
-            margin-bottom: 24px;
-            line-height: 1.4;
-        }
+  #bg-layer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.75) 100%);
+  }
 
-        .links {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+  #noise {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.035;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 
-        .link-card {
-            display: block;
-            padding: 14px 20px;
-            background: #ffffff;
-            color: #111;
-            text-decoration: none;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border: 1px solid #eaeaea;
-            transition: all 0.2s ease;
-        }
+  #stage {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
 
-        .link-card:hover {
-            border-color: #111;
-            transform: translateY(-1px);
-        }
-    </style>
+  #card {
+    position: relative;
+    width: min(420px, 100%);
+    padding: 40px 32px 32px;
+    border-radius: 20px;
+    background: rgba(15,15,18, var(--card-opacity));
+    backdrop-filter: blur(var(--card-blur));
+    -webkit-backdrop-filter: blur(var(--card-blur));
+    border: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  #card.in { opacity: 1; transform: translateY(0); }
+
+  #avatar-wrap {
+    position: relative;
+    width: 108px;
+    height: 108px;
+    margin: 0 auto 18px;
+  }
+
+  #avatar {
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255,255,255,0.15);
+    display: block;
+    background: #222;
+  }
+
+  .status-dot {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 3px solid rgba(15,15,18,0.9);
+    background: #747f8d;
+  }
+  .status-dot.online { background: #23a55a; }
+  .status-dot.idle { background: #f0b232; }
+  .status-dot.dnd { background: #f23f43; }
+  .status-dot.offline { background: #80848e; }
+
+  #username {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+
+  #username.glow {
+    text-shadow: 0 0 18px var(--glow), 0 0 40px var(--glow);
+  }
+
+  #pronouns {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+
+  #description {
+    margin-top: 14px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.78);
+    white-space: pre-wrap;
+  }
+
+  #activity {
+    margin-top: 20px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.06);
+    text-align: left;
+  }
+  #activity.show { display: flex; }
+  #activity img { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0; }
+  #activity-text { min-width: 0; }
+  #activity-name { font-size: 13px; font-weight: 600; }
+  #activity-detail { font-size: 12px; color: rgba(255,255,255,0.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  #socials {
+    margin-top: 22px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .social-link {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--icon);
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .social-link:hover { transform: translateY(-3px); background: rgba(255,255,255,0.12); }
+  .social-link svg { width: 18px; height: 18px; fill: currentColor; }
+
+  #views {
+    margin-top: 18px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  #sound-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 5;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(20,20,20,0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  ::selection { background: var(--accent); color: #000; }
+</style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Możesz wkleić link do własnego zdjęcia/awatara zamiast poniższego placeholderu -->
-        <img class="avatar" src="https://via.placeholder.com/150/ffffff/000000?text=U" alt="Avatar">
-        
-        <h1>Twój Nick / Imię</h1>
-        <p class="bio">Tutaj krótki opis – co robisz, czym się zajmujesz albo po prostu Twój status.</p>
+<div id="bg-layer"></div>
+<div id="noise"></div>
+<button id="sound-toggle" title="Sound" aria-label="Toggle sound">🔇</button>
 
-        <div class="links">
-            <!-- Podmień # na swoje pełne linki -->
-            <a href="#" class="link-card" target="_blank" rel="noopener">Discord Server / Profile</a>
-            <a href="#" class="link-card" target="_blank" rel="noopener">YouTube / Twitch</a>
-            <a href="#" class="link-card" target="_blank" rel="noopener">X / Twitter</a>
-            <a href="#" class="link-card" target="_blank" rel="noopener">Steam / Kick</a>
-        </div>
+<div id="stage">
+  <div id="card">
+    <div id="avatar-wrap">
+      <img id="avatar" src="" alt="avatar">
+      <div id="status-dot" class="status-dot offline"></div>
+    </div>
+    <div id="username">...</div>
+    <div id="pronouns"></div>
+    <div id="description"></div>
+
+    <div id="activity">
+      <img id="activity-img" src="" alt="">
+      <div id="activity-text">
+        <div id="activity-name"></div>
+        <div id="activity-detail"></div>
+      </div>
     </div>
 
+    <div id="socials"></div>
+    <div id="views"><span>👁</span><span id="view-count">0</span></div>
+  </div>
+</div>
+
+<audio id="bg-audio" loop></audio>
+
+<script>
+const ICONS = {
+  discord: '<svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.245.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>',
+  github: '<svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>',
+  spotify: '<svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141 4.32-1.32 9.72-.66 13.38 1.62.361.181.54.78.361 1.201zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.3c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.3.421-1.02.599-1.56.299z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163C8.741 0 8.332.014 7.052.072 2.695.272.273 2.69.073 7.052.014 8.332 0 8.741 0 12s.014 3.668.072 4.948c.2 4.358 2.618 6.78 6.98 6.98C8.332 23.986 8.741 24 12 24s3.668-.014 4.948-.072c4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948s-.014-3.668-.072-4.948C23.73 2.7 21.31.273 16.949.073 15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>',
+  twitter: '<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+  youtube: '<svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12z"/></svg>',
+  twitch: '<svg viewBox="0 0 24 24"><path d="M11.64 5.93h1.43v4.28h-1.43m3.93-4.28H17v4.28h-1.43M7 2 3.43 5.57v12.86h4.28V22l3.58-3.57h2.85L20.57 12V2m-1.43 9.29-2.85 2.85h-2.86l-2.5 2.5v-2.5H7.71V3.43h11.43z"/></svg>',
+  telegram: '<svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>',
+  tiktok: '<svg viewBox="0 0 24 24"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>',
+  linkedin: '<svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zM7.114 20.452H3.558V9h3.556v11.452z"/></svg>',
+  website: '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm7.94 9h-3.02c-.14-2.36-.85-4.55-1.98-6.36A8.02 8.02 0 0 1 19.94 11zM12 4.04c1.45 1.87 2.4 4.24 2.63 6.96H9.37c.23-2.72 1.18-5.09 2.63-6.96zM4.06 13h3.02c.14 2.36.85 4.55 1.98 6.36A8.02 8.02 0 0 1 4.06 13zM7.08 11H4.06a8.02 8.02 0 0 1 5-6.36C7.93 6.45 7.22 8.64 7.08 11zM12 19.96c-1.45-1.87-2.4-4.24-2.63-6.96h5.26c-.23 2.72-1.18 5.09-2.63 6.96zM14.9 19.36c1.13-1.81 1.84-4 1.98-6.36h3.02a8.02 8.02 0 0 1-5 6.36z"/></svg>'
+};
+
+function applyTheme(cfg) {
+  const r = document.documentElement.style;
+  r.setProperty('--accent', cfg.colors.accent || '#ffffff');
+  r.setProperty('--text', cfg.colors.text || '#ffffff');
+  r.setProperty('--bg', cfg.colors.background || '#0a0a0a');
+  r.setProperty('--icon', cfg.colors.icon || '#ffffff');
+  r.setProperty('--glow', cfg.colors.glow || '#7c5cff');
+  r.setProperty('--card-blur', (cfg.appearance.blurPx ?? 18) + 'px');
+  r.setProperty('--card-opacity', (cfg.appearance.cardOpacity ?? 55) / 100);
+
+  if (cfg.appearance.background) {
+    document.getElementById('bg-layer').style.backgroundImage = `url('${cfg.appearance.background}')`;
+  }
+  if (cfg.appearance.cursor) {
+    document.body.style.cursor = `url('${cfg.appearance.cursor}'), auto`;
+  }
+  if (cfg.appearance.usernameGlow) {
+    document.getElementById('username').classList.add('glow');
+  }
+  document.title = '@' + (cfg.username || '');
+}
+
+function renderProfile(cfg) {
+  document.getElementById('avatar').src = cfg.avatar || '';
+  document.getElementById('username').textContent = cfg.displayName || cfg.username || '...';
+  document.getElementById('pronouns').textContent = cfg.pronouns || '';
+  document.getElementById('description').textContent = cfg.description || '';
+
+  const socialsEl = document.getElementById('socials');
+  socialsEl.innerHTML = '';
+  (cfg.socials || []).forEach(s => {
+    if (!s.url) return;
+    const a = document.createElement('a');
+    a.href = s.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.className = 'social-link';
+    a.innerHTML = ICONS[s.icon] || ICONS.website;
+    socialsEl.appendChild(a);
+  });
+
+  if (cfg.audio) {
+    const audioEl = document.getElementById('bg-audio');
+    audioEl.src = cfg.audio;
+  }
+
+  // view counter (local, per-browser demo — swap for a real counter API if you want global counts)
+  const key = 'profile_views_' + (cfg.username || 'default');
+  let views = parseInt(localStorage.getItem(key) || '0', 10) + 1;
+  localStorage.setItem(key, views);
+  document.getElementById('view-count').textContent = views;
+
+  requestAnimationFrame(() => {
+    document.getElementById('card').classList.add('in');
+  });
+}
+
+async function loadLanyard(discordId) {
+  if (!discordId) return;
+  try {
+    const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
+    const json = await res.json();
+    if (!json.success) return;
+    const d = json.data;
+
+    const dot = document.getElementById('status-dot');
+    dot.className = 'status-dot ' + (d.discord_status || 'offline');
+
+    const activity = (d.activities || []).find(a => a.type !== 4) || null; // skip custom-status-only
+    const activityEl = document.getElementById('activity');
+    if (activity) {
+      activityEl.classList.add('show');
+      document.getElementById('activity-name').textContent = activity.name || '';
+      document.getElementById('activity-detail').textContent = activity.details || activity.state || '';
+      let img = '';
+      if (activity.assets?.large_image) {
+        const key = activity.assets.large_image;
+        img = key.startsWith('mp:external')
+          ? 'https://media.discordapp.net/external/' + key.split('/').slice(1).join('/')
+          : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${key}.png`;
+      }
+      document.getElementById('activity-img').src = img;
+      document.getElementById('activity-img').style.display = img ? 'block' : 'none';
+    }
+  } catch (e) {
+    console.warn('Lanyard fetch failed', e);
+  }
+}
+
+async function init() {
+  try {
+    const res = await fetch('profile.json?_=' + Date.now());
+    const cfg = await res.json();
+    applyTheme(cfg);
+    renderProfile(cfg);
+    if (cfg.discordId) loadLanyard(cfg.discordId);
+  } catch (e) {
+    document.getElementById('username').textContent = 'profile.json not found';
+    console.error(e);
+  }
+}
+
+// live preview support: when embedded in admin.html, accept pushed profile updates
+window.addEventListener('message', (e) => {
+  if (e.data?.type === 'preview-update' && e.data.profile) {
+    applyTheme(e.data.profile);
+    renderProfile(e.data.profile);
+  }
+});
+
+document.getElementById('sound-toggle').addEventListener('click', () => {
+  const audio = document.getElementById('bg-audio');
+  const btn = document.getElementById('sound-toggle');
+  if (audio.paused) {
+    audio.play().then(() => btn.textContent = '🔊').catch(() => {});
+  } else {
+    audio.pause();
+    btn.textContent = '🔇';
+  }
+});
+
+init();
+</script>
 </body>
 </html>
