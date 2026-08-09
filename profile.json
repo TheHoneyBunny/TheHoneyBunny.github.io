@@ -1,9 +1,9 @@
 {
-  "username": "twojnick",
-  "displayName": "Twój Nick",
-  "pronouns": "",
-  "description": "Opisz się tutaj — kilka słów o sobie, swoich zainteresowaniach albo cytat.",
-  "discordId": "",
+  "username": "miguel.sandiego",
+  "displayName": "miguel.sandiego",
+  "pronouns": "he/him",
+  "description": "cipa",
+  "discordId": "1357221629708599417",
   "avatar": "assets/1786096504141.jpeg",
   "audio": "",
   "socials": [
@@ -21,17 +21,26 @@
     }
   ],
   "colors": {
-    "accent": "#ffffff",
-    "text": "#ffffff",
+    "accent": "#c9b6ff",
+    "text": "#f486e0",
     "background": "#0a0a0a",
+    "cardTint": "#ffffff",
     "icon": "#ffffff",
-    "glow": "#7c5cff"
+    "glow": "#f7c5ec"
   },
   "appearance": {
-    "background": "assets/1786096501294.jpg",
+    "background": "assets/1786267529119.jpg",
     "cursor": "",
-    "cardOpacity": 55,
-    "blurPx": 18,
-    "usernameGlow": false
+    "cardOpacity": 15,
+    "blurPx": 7,
+    "cardRadius": 40,
+    "overlayStrength": 80,
+    "usernameGlow": false,
+    "avatarGlow": true,
+    "particles": true,
+    "showSoundToggle": true,
+    "showViews": true,
+    "fontDisplay": "rounded",
+    "fontBody": "rounded"
   }
 }
