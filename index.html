@@ -388,7 +388,15 @@ function applyTheme(cfg) {
   document.getElementById('sound-toggle').classList.toggle('hidden', !app.showSoundToggle);
   document.getElementById('views').classList.toggle('hidden', !app.showViews);
   document.getElementById('status-badge').classList.toggle('hidden', !cfg.discordId || !app.showStatusBadge);
-  document.getElementById('avatar-decoration').classList.toggle('show', !!app.showAvatarDecoration);
+
+  // avatar decoration: manual preset works standalone; the live Discord one needs discordId + Lanyard data (handled in applyLanyardData)
+  const decoWrap = document.getElementById('avatar-decoration');
+  if (app.showAvatarDecoration && app.decorationPresetUrl) {
+    decoWrap.querySelector('img').src = app.decorationPresetUrl;
+    decoWrap.classList.add('show');
+  } else if (!cfg.discordId) {
+    decoWrap.classList.remove('show');
+  }
 
   document.getElementById('bg-overlay').style.opacity = app.overlayStrength != null ? (app.overlayStrength / 100) : 1;
 
@@ -419,18 +427,19 @@ function renderProfile(cfg) {
   requestAnimationFrame(() => { document.getElementById('card').classList.add('in'); });
 }
 
-// real global view counter via the free CountAPI service — every visitor's hit increments
-// one shared number tied to your username, instead of a per-browser localStorage tally
+// real global view counter via CountAPI (no signup required). If the service
+// is ever unreachable, we fail quietly and show a dash instead of a broken UI.
 async function loadViewCount(username) {
   const el = document.getElementById('view-count');
-  if (!username) { el.textContent = '0'; return; }
+  if (!username) { el.textContent = '—'; return; }
   try {
-    const ns = 'discord-bio-' + username.replace(/[^a-zA-Z0-9_-]/g, '');
-    const res = await fetch(`https://api.counterapi.dev/v1/${ns}/views/up`);
+    const key = 'discordbio_' + username.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+    const res = await fetch(`https://countapi.mileshilliard.com/api/v1/hit/${key}`);
+    if (!res.ok) throw new Error('bad response');
     const json = await res.json();
-    el.textContent = json.count ?? '0';
+    el.textContent = (json.value ?? json.count ?? '—').toString();
   } catch (e) {
-    el.textContent = '0';
+    el.textContent = '—';
   }
 }
 
@@ -453,7 +462,11 @@ function applyLanyardData(d, cfg) {
     }
     // real Discord avatar decoration (the animated frame around the pfp — leaves, effects, etc.)
     const decoWrap = document.getElementById('avatar-decoration');
-    if (cfg.appearance.showAvatarDecoration && u.avatar_decoration_data?.asset) {
+    const manualPreset = cfg.appearance.decorationPresetUrl;
+    if (cfg.appearance.showAvatarDecoration && manualPreset) {
+      decoWrap.querySelector('img').src = manualPreset;
+      decoWrap.classList.add('show');
+    } else if (cfg.appearance.showAvatarDecoration && u.avatar_decoration_data?.asset) {
       decoWrap.querySelector('img').src = `https://cdn.discordapp.com/avatar-decoration-presets/${u.avatar_decoration_data.asset}.png`;
       decoWrap.classList.add('show');
     } else {

@@ -136,6 +136,11 @@
   .pick-tile:hover { border-color: #444; }
   .pick-tile.active { border-color: var(--accent); background: rgba(124,92,255,0.12); color: #fff; }
   .pick-tile.fx-preview { font-weight: 700; font-size: 16px; padding: 14px 6px; }
+  .pick-tile.font-preview { font-size: 18px; font-weight: 700; padding: 16px 6px; }
+  .deco-tile { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; }
+  .deco-tile img { width: 44px; height: 44px; border-radius: 50%; background: #222; }
+  .deco-tile span { font-size: 10.5px; line-height: 1.2; color: #c7c7cc; }
+  .deco-tile.none-tile { justify-content: center; font-size: 12px; color: var(--muted); }
   .fx-tile-solid { color: #fff; }
   .fx-tile-gradient { background-image: linear-gradient(90deg, #c9b6ff, #7c5cff) !important; -webkit-background-clip: text; background-clip: text; color: transparent !important; }
   .fx-tile-neon { color: #fff; text-shadow: 0 0 4px #fff, 0 0 12px #7c5cff, 0 0 24px #7c5cff; }
@@ -176,7 +181,9 @@
       <div class="toggle-row"><span>Pokaż kolorową obwódkę statusu</span><div class="toggle" id="f-showStatusRing"></div></div>
       <div class="toggle-row"><span>Pokaż kropkę statusu na avatarze</span><div class="toggle" id="f-showStatusBadge"></div></div>
       <div class="toggle-row"><span>Pokaż dekorację avatara z Discorda</span><div class="toggle" id="f-showAvatarDecoration"></div></div>
-      <div class="hint">Dekoracja to ta animowana ramka wokół avatara (np. listki, motyle) którą kupujesz/wybierasz w Discordzie. Jeśli masz ją ustawioną na koncie, pojawi się automatycznie.</div>
+      <div class="hint">Dekoracja to ta animowana ramka wokół avatara (np. listki, motyle) którą kupujesz/wybierasz w Discordzie. Jeśli masz ją ustawioną na koncie i wpisany Discord ID wyżej, pojawi się automatycznie — albo wybierz jedną z galerii poniżej, jeśli nie masz własnej.</div>
+      <label>Galeria dekoracji (opcjonalnie, jeśli nie masz własnej)</label>
+      <div class="grid-3" id="decoration-picker"></div>
     </div>
   </details>
 
@@ -246,14 +253,7 @@
       <div class="grid-3" id="fx-picker"></div>
 
       <label>Font</label>
-      <select class="full" id="f-fontDisplay">
-        <option value="space-grotesk">Space Grotesk</option>
-        <option value="system">Systemowy</option>
-        <option value="mono">Mono</option>
-        <option value="serif">Serif</option>
-        <option value="rounded">Zaokrąglony</option>
-        <option value="medieval">Medieval</option>
-      </select>
+      <div class="grid-2" id="font-picker"></div>
     </div>
   </details>
 
@@ -342,6 +342,31 @@ const TEXT_EFFECTS = [
   { id: 'shine', label: 'Shine' }
 ];
 
+const FONT_OPTIONS = [
+  { id: 'space-grotesk', label: 'Nowoczesny', stack: "'Space Grotesk', -apple-system, sans-serif" },
+  { id: 'system', label: 'Systemowy', stack: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" },
+  { id: 'mono', label: 'Mono', stack: "'JetBrains Mono', 'SF Mono', Menlo, monospace" },
+  { id: 'serif', label: 'Serif', stack: "'Georgia', 'Times New Roman', serif" },
+  { id: 'rounded', label: 'Zaokrąglony', stack: "'Quicksand', -apple-system, sans-serif" },
+  { id: 'medieval', label: 'Medieval', stack: "'UnifrakturMaguntia', 'Old English Text MT', serif" }
+];
+
+// real Discord avatar decoration presets (hash + display name pulled from Discord's own preset catalog)
+const DECORATION_PRESETS = [
+  { label: 'Sakura Warrior', asset: 'a_7cf09c7e78d6eb35ae354acc1d5cc676' },
+  { label: 'Sakura Ink', asset: 'a_13913a00bd9990ab4102a3bf069f0f3f' },
+  { label: 'Lotus Flower', asset: 'a_2e55d644e11acb6253dfa422eff16dfd' },
+  { label: 'Fall Leaves', asset: 'a_720a2045510ec16f9878237d2ff9873f' },
+  { label: 'Butterflies', asset: 'a_4cd9ae5a8d103c219eacd3674d7730cd' },
+  { label: 'Heartbloom', asset: 'a_3e1fc3c7ee2e34e8176f4737427e8f4f' },
+  { label: 'Magical Girl', asset: 'a_45f7f9975255971b197d34d77fb50ede' },
+  { label: 'Unicorn', asset: 'a_47c0f4b4a837894998d5a316acf74f87' },
+  { label: 'Bubble Tea', asset: 'a_5b1319abfc9f928479b68a73635f591d' },
+  { label: 'Fire', asset: 'a_a065206df7b011a5510e4e5bca7d49be' },
+  { label: 'Aurora', asset: 'a_386445551be850bb16b73a225d0d0602' },
+  { label: 'Constellations', asset: 'a_8552f9857793aed0cf816f370e2df3be' }
+];
+
 let state = null;
 let gh = { token: '', repo: '', sha: null };
 const pendingUploads = {};
@@ -360,7 +385,8 @@ function defaultProfile() {
       overlayStrength: 100, avatarGlow: false, particles: false, grain: true,
       showSoundToggle: true, showViews: true, fontDisplay: 'space-grotesk', fontBody: 'space-grotesk',
       textEffect: 'solid',
-      autoAvatar: true, autoUsername: true, showStatusRing: true, showStatusBadge: true, showAvatarDecoration: true
+      autoAvatar: true, autoUsername: true, showStatusRing: true, showStatusBadge: true, showAvatarDecoration: true,
+      decorationPresetUrl: ''
     }
   };
 }
@@ -428,6 +454,61 @@ function updateFxActive() {
   });
 }
 
+function renderFontPicker() {
+  const wrap = $('font-picker');
+  wrap.innerHTML = '';
+  FONT_OPTIONS.forEach(f => {
+    const el = document.createElement('div');
+    el.className = 'pick-tile font-preview';
+    el.style.fontFamily = f.stack;
+    el.textContent = (state.displayName || state.username || 'Gg').slice(0, 10);
+    el.title = f.label;
+    el.dataset.font = f.id;
+    el.addEventListener('click', () => {
+      state.appearance.fontDisplay = f.id;
+      state.appearance.fontBody = f.id;
+      renderFontPicker();
+      commit();
+    });
+    wrap.appendChild(el);
+  });
+  updateFontActive();
+}
+function updateFontActive() {
+  document.querySelectorAll('#font-picker .pick-tile').forEach(el => {
+    el.classList.toggle('active', el.dataset.font === state.appearance.fontDisplay);
+  });
+}
+
+function renderDecorationPicker() {
+  const wrap = $('decoration-picker');
+  wrap.innerHTML = '';
+
+  const noneEl = document.createElement('div');
+  noneEl.className = 'pick-tile deco-tile none-tile';
+  noneEl.textContent = 'Brak';
+  noneEl.dataset.asset = '';
+  noneEl.addEventListener('click', () => { state.appearance.decorationPresetUrl = ''; renderDecorationPicker(); commit(); });
+  wrap.appendChild(noneEl);
+
+  DECORATION_PRESETS.forEach(d => {
+    const url = `https://cdn.discordapp.com/avatar-decoration-presets/${d.asset}.png`;
+    const el = document.createElement('div');
+    el.className = 'pick-tile deco-tile';
+    el.dataset.asset = url;
+    el.innerHTML = `<img src="${url}" loading="lazy" alt=""><span>${d.label}</span>`;
+    el.addEventListener('click', () => { state.appearance.decorationPresetUrl = url; renderDecorationPicker(); commit(); });
+    wrap.appendChild(el);
+  });
+  updateDecorationActive();
+}
+function updateDecorationActive() {
+  const current = state.appearance.decorationPresetUrl || '';
+  document.querySelectorAll('#decoration-picker .pick-tile').forEach(el => {
+    el.classList.toggle('active', el.dataset.asset === current);
+  });
+}
+
 function loadFormFromState() {
   $('f-username').value = state.username || '';
   $('f-displayName').value = state.displayName || '';
@@ -462,8 +543,6 @@ function loadFormFromState() {
   $('f-showStatusBadge').classList.toggle('on', state.appearance.showStatusBadge !== false);
   $('f-showAvatarDecoration').classList.toggle('on', state.appearance.showAvatarDecoration !== false);
 
-  $('f-fontDisplay').value = state.appearance.fontDisplay || 'space-grotesk';
-
   updateThumb('avatar-thumb', state.avatar);
   updateThumb('bg-thumb', state.appearance.background);
   updateThumb('cursor-thumb', state.appearance.cursor);
@@ -472,6 +551,8 @@ function loadFormFromState() {
 
   updateBgTypeUI();
   updateFxActive();
+  renderFontPicker();
+  renderDecorationPicker();
   renderSocials();
 }
 
@@ -529,7 +610,11 @@ function commit() {
 }
 
 function bindSimple(id, path) {
-  $(id).addEventListener('input', () => { state[path] = $(id).value; commit(); });
+  $(id).addEventListener('input', () => {
+    state[path] = $(id).value;
+    if (path === 'displayName' || path === 'username') renderFontPicker();
+    commit();
+  });
 }
 ['username','displayName','pronouns','description','discordId'].forEach(f => bindSimple('f-' + f, f));
 
@@ -577,12 +662,6 @@ bindToggle('f-showStatusRing', 'showStatusRing');
 bindToggle('f-showStatusBadge', 'showStatusBadge');
 bindToggle('f-showAvatarDecoration', 'showAvatarDecoration');
 bindToggle('f-grain', 'grain');
-
-$('f-fontDisplay').addEventListener('change', () => {
-  state.appearance.fontDisplay = $('f-fontDisplay').value;
-  state.appearance.fontBody = $('f-fontDisplay').value;
-  commit();
-});
 
 $('add-social').addEventListener('click', () => {
   state.socials.push({ icon: 'website', url: '' });
