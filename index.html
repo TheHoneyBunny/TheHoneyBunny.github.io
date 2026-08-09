@@ -14,6 +14,7 @@
     --bg-solid: #0a0a0a;
     --icon: #ffffff;
     --icon-bg: rgba(255,255,255,0.06);
+    --icon-radius: 13px;
     --glow: #7c5cff;
     --card-bg: rgba(15,15,18,0.55);
     --card-border: rgba(255,255,255,0.08);
@@ -36,17 +37,26 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  #bg-layer {
+  #bg-layer, #bg-video {
     position: fixed;
     inset: 0;
+    z-index: 0;
+    transform: scale(1.05);
+  }
+  #bg-layer {
     background-color: var(--bg-solid);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transform: scale(1.05);
-    z-index: 0;
     transition: background-image 0.3s ease;
   }
+  #bg-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  #bg-video.show { display: block; }
 
   #bg-overlay {
     position: fixed;
@@ -64,6 +74,7 @@
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+  #noise.hidden { display: none; }
 
   #stage {
     position: relative;
@@ -96,8 +107,8 @@
 
   #avatar-wrap {
     position: relative;
-    width: 112px;
-    height: 112px;
+    width: 116px;
+    height: 116px;
     margin: 0 auto 20px;
   }
 
@@ -125,31 +136,44 @@
     border: 3px solid #0f0f12;
   }
 
-  #avatar-wrap.no-ring #avatar {
-    border: 3px solid rgba(255,255,255,0.15);
+  #avatar-decoration {
+    position: absolute;
+    inset: -18%;
+    pointer-events: none;
+    display: none;
+    z-index: 3;
   }
-  #avatar-wrap.no-ring #avatar-ring { display: none; }
+  #avatar-decoration.show { display: block; }
+  #avatar-decoration img { width: 100%; height: 100%; }
 
-  #avatar-wrap.glow #avatar {
-    box-shadow: 0 0 26px var(--glow), 0 0 55px var(--glow);
-  }
+  #avatar-wrap.no-ring #avatar { border: 3px solid rgba(255,255,255,0.15); }
+  #avatar-wrap.no-ring #avatar-ring { display: none; }
+  #avatar-wrap.glow #avatar { box-shadow: 0 0 26px var(--glow), 0 0 55px var(--glow); }
 
   .status-badge {
     position: absolute;
     bottom: 2px;
     right: 2px;
-    width: 24px;
-    height: 24px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
     border: 3px solid #0f0f12;
     background: #747f8d;
-    z-index: 2;
+    z-index: 4;
   }
   .status-badge.hidden { display: none; }
   .status-badge.online { background: #23a55a; }
   .status-badge.idle { background: #f0b232; }
   .status-badge.dnd { background: #f23f43; }
   .status-badge.offline { background: #80848e; }
+
+  #username-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
 
   #username {
     font-family: var(--font-display);
@@ -160,57 +184,22 @@
     display: inline-block;
   }
 
-  /* text style effects */
   #username.fx-solid { color: var(--accent); }
+  #username.fx-gradient { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #username.fx-neon { color: #fff; text-shadow: 0 0 6px var(--accent), 0 0 18px var(--accent), 0 0 40px var(--accent-2); }
+  #username.fx-toon { color: var(--accent); -webkit-text-stroke: 2px #000; paint-order: stroke fill; }
+  #username.fx-pop { color: var(--accent); text-shadow: 3px 3px 0 var(--accent-2); }
+  #username.fx-shine { color: var(--accent); position: relative; background: linear-gradient(100deg, var(--accent) 30%, #fff 50%, var(--accent) 70%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shine 3s linear infinite; }
+  @keyframes shine { to { background-position: -200% center; } }
 
-  #username.fx-gradient {
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+  .badge-icon { width: 20px; height: 20px; border-radius: 5px; object-fit: cover; }
 
-  #username.fx-neon {
-    color: #fff;
-    text-shadow: 0 0 6px var(--accent), 0 0 18px var(--accent), 0 0 40px var(--accent-2);
-  }
-
-  #username.fx-toon {
-    color: var(--accent);
-    -webkit-text-stroke: 2px #000;
-    paint-order: stroke fill;
-  }
-
-  #username.fx-pop {
-    color: var(--accent);
-    text-shadow: 3px 3px 0 var(--accent-2);
-  }
-
-  #pronouns {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-top: 3px;
-    letter-spacing: 0.02em;
-  }
-
-  #description {
-    margin-top: 16px;
-    font-size: 14.5px;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    white-space: pre-wrap;
-  }
+  #pronouns { font-size: 13px; color: var(--text-secondary); margin-top: 3px; letter-spacing: 0.02em; }
+  #description { margin-top: 16px; font-size: 14.5px; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap; }
 
   #activity {
-    margin-top: 22px;
-    display: none;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.06);
-    text-align: left;
+    margin-top: 22px; display: none; align-items: center; gap: 12px; padding: 12px 16px;
+    border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06); text-align: left;
   }
   #activity.show { display: flex; }
   #activity img { width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0; }
@@ -218,71 +207,27 @@
   #activity-name { font-size: 13px; font-weight: 600; }
   #activity-detail { font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  #socials {
-    margin-top: 24px;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
+  #socials { margin-top: 24px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .social-link {
-    width: 40px;
-    height: 40px;
-    border-radius: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--icon-bg);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: var(--icon);
-    text-decoration: none;
+    width: 40px; height: 40px; border-radius: var(--icon-radius); display: flex; align-items: center; justify-content: center;
+    background: var(--icon-bg); border: 1px solid rgba(255,255,255,0.08); color: var(--icon); text-decoration: none;
     transition: transform 0.25s var(--ease-spring), background 0.2s ease;
   }
   .social-link:hover { transform: translateY(-4px) scale(1.06); background: rgba(255,255,255,0.14); }
   .social-link svg { width: 18px; height: 18px; fill: currentColor; }
 
-  #views {
-    margin-top: 20px;
-    font-size: 11px;
-    color: var(--text-secondary);
-    opacity: 0.6;
-    letter-spacing: 0.04em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-  }
+  #views { margin-top: 20px; font-size: 11px; color: var(--text-secondary); opacity: 0.6; letter-spacing: 0.04em; display: flex; align-items: center; justify-content: center; gap: 5px; }
   #views.hidden { display: none; }
 
   #sound-toggle {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 5;
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    background: rgba(20,20,20,0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.2s var(--ease-spring);
+    position: fixed; top: 20px; left: 20px; z-index: 5; width: 42px; height: 42px; border-radius: 14px;
+    background: rgba(20,20,20,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s var(--ease-spring);
   }
   #sound-toggle:hover { transform: scale(1.08); }
   #sound-toggle.hidden { display: none; }
 
-  #particles {
-    position: fixed;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    display: none;
-  }
+  #particles { position: fixed; inset: 0; z-index: 2; pointer-events: none; display: none; }
   #particles.show { display: block; }
 
   ::selection { background: var(--accent); color: #000; }
@@ -291,6 +236,7 @@
 <body>
 
 <div id="bg-layer"></div>
+<video id="bg-video" autoplay muted loop playsinline></video>
 <div id="bg-overlay"></div>
 <canvas id="particles"></canvas>
 <div id="noise"></div>
@@ -301,9 +247,12 @@
     <div id="avatar-wrap">
       <div id="avatar-ring" class="offline"></div>
       <img id="avatar" src="" alt="avatar">
+      <div id="avatar-decoration"><img src="" alt=""></div>
       <div id="status-badge" class="status-badge offline"></div>
     </div>
-    <div id="username" class="fx-solid">...</div>
+    <div id="username-row">
+      <div id="username" class="fx-solid">...</div>
+    </div>
     <div id="pronouns"></div>
     <div id="description"></div>
 
@@ -316,7 +265,7 @@
     </div>
 
     <div id="socials"></div>
-    <div id="views"><span>👁</span><span id="view-count">0</span></div>
+    <div id="views"><span>👁</span><span id="view-count">…</span></div>
   </div>
 </div>
 
@@ -363,8 +312,7 @@ function stopParticles() {
   if (particleAnimId) { cancelAnimationFrame(particleAnimId); particleAnimId = null; }
   const canvas = document.getElementById('particles');
   canvas.classList.remove('show');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function startParticles(color) {
@@ -373,30 +321,36 @@ function startParticles(color) {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
-  const count = 50;
-  const particles = Array.from({ length: count }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 2 + 0.5,
-    vy: Math.random() * 0.4 + 0.1,
-    vx: (Math.random() - 0.5) * 0.3,
-    o: Math.random() * 0.5 + 0.2
+  const particles = Array.from({ length: 50 }, () => ({
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+    r: Math.random() * 2 + 0.5, vy: Math.random() * 0.4 + 0.1, vx: (Math.random() - 0.5) * 0.3, o: Math.random() * 0.5 + 0.2
   }));
   function frame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = color || '#ffffff';
     particles.forEach(p => {
-      p.y -= p.vy;
-      p.x += p.vx;
+      p.y -= p.vy; p.x += p.vx;
       if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
       ctx.globalAlpha = p.o;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
     });
     particleAnimId = requestAnimationFrame(frame);
   }
   frame();
+}
+
+function setBackground(app) {
+  const imgLayer = document.getElementById('bg-layer');
+  const videoLayer = document.getElementById('bg-video');
+  if (app.backgroundType === 'video' && app.backgroundVideo) {
+    videoLayer.src = app.backgroundVideo;
+    videoLayer.classList.add('show');
+    imgLayer.style.backgroundImage = 'none';
+  } else {
+    videoLayer.classList.remove('show');
+    videoLayer.removeAttribute('src');
+    imgLayer.style.backgroundImage = app.background ? `url('${app.background}')` : 'none';
+  }
 }
 
 function applyTheme(cfg) {
@@ -411,6 +365,7 @@ function applyTheme(cfg) {
   r.setProperty('--bg-solid', colors.background || '#0a0a0a');
   r.setProperty('--icon', colors.icon || '#ffffff');
   r.setProperty('--icon-bg', hexToRgba(colors.icon || '#ffffff', 0.08));
+  r.setProperty('--icon-radius', (app.iconRadius ?? 13) + 'px');
   r.setProperty('--glow', colors.glow || '#7c5cff');
 
   const cardTint = colors.cardTint || '#0f0f12';
@@ -421,8 +376,9 @@ function applyTheme(cfg) {
   r.setProperty('--font-display', FONT_STACKS[app.fontDisplay] || FONT_STACKS['space-grotesk']);
   r.setProperty('--font-body', FONT_STACKS[app.fontBody] || FONT_STACKS['space-grotesk']);
 
-  document.getElementById('bg-layer').style.backgroundImage = app.background ? `url('${app.background}')` : 'none';
+  setBackground(app);
   document.body.style.cursor = app.cursor ? `url('${app.cursor}'), auto` : 'auto';
+  document.getElementById('noise').classList.toggle('hidden', app.grain === false);
 
   const usernameEl = document.getElementById('username');
   usernameEl.className = 'fx-' + (app.textEffect || 'solid');
@@ -432,9 +388,9 @@ function applyTheme(cfg) {
   document.getElementById('sound-toggle').classList.toggle('hidden', !app.showSoundToggle);
   document.getElementById('views').classList.toggle('hidden', !app.showViews);
   document.getElementById('status-badge').classList.toggle('hidden', !cfg.discordId || !app.showStatusBadge);
+  document.getElementById('avatar-decoration').classList.toggle('show', !!app.showAvatarDecoration);
 
-  const overlay = document.getElementById('bg-overlay');
-  overlay.style.opacity = app.overlayStrength != null ? (app.overlayStrength / 100) : 1;
+  document.getElementById('bg-overlay').style.opacity = app.overlayStrength != null ? (app.overlayStrength / 100) : 1;
 
   if (app.particles) startParticles(colors.accent);
   else stopParticles();
@@ -453,24 +409,29 @@ function renderProfile(cfg) {
   (cfg.socials || []).forEach(s => {
     if (!s.url) return;
     const a = document.createElement('a');
-    a.href = s.url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.className = 'social-link';
+    a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.className = 'social-link';
     a.innerHTML = ICONS[s.icon] || ICONS.website;
     socialsEl.appendChild(a);
   });
 
   if (cfg.audio) document.getElementById('bg-audio').src = cfg.audio;
 
-  const key = 'profile_views_' + (cfg.username || 'default');
-  let views = parseInt(localStorage.getItem(key) || '0', 10) + 1;
-  localStorage.setItem(key, views);
-  document.getElementById('view-count').textContent = views;
+  requestAnimationFrame(() => { document.getElementById('card').classList.add('in'); });
+}
 
-  requestAnimationFrame(() => {
-    document.getElementById('card').classList.add('in');
-  });
+// real global view counter via the free CountAPI service — every visitor's hit increments
+// one shared number tied to your username, instead of a per-browser localStorage tally
+async function loadViewCount(username) {
+  const el = document.getElementById('view-count');
+  if (!username) { el.textContent = '0'; return; }
+  try {
+    const ns = 'discord-bio-' + username.replace(/[^a-zA-Z0-9_-]/g, '');
+    const res = await fetch(`https://api.counterapi.dev/v1/${ns}/views/up`);
+    const json = await res.json();
+    el.textContent = json.count ?? '0';
+  } catch (e) {
+    el.textContent = '0';
+  }
 }
 
 function applyLanyardData(d, cfg) {
@@ -481,14 +442,22 @@ function applyLanyardData(d, cfg) {
   badge.className = 'status-badge ' + status;
   if (!cfg.appearance.showStatusRing) ring.classList.add('hidden');
 
-  // auto-fill avatar + username from live Discord data, unless the user set a custom avatar manually
   if (d.discord_user) {
-    if (cfg.appearance.autoAvatar !== false && d.discord_user.avatar) {
+    const u = d.discord_user;
+    if (cfg.appearance.autoAvatar !== false && u.avatar) {
       document.getElementById('avatar').src =
-        `https://cdn.discordapp.com/avatars/${d.discord_user.id}/${d.discord_user.avatar}.${d.discord_user.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`;
+        `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`;
     }
     if (cfg.appearance.autoUsername !== false) {
-      document.getElementById('username').textContent = d.discord_user.global_name || d.discord_user.username;
+      document.getElementById('username').textContent = u.global_name || u.username;
+    }
+    // real Discord avatar decoration (the animated frame around the pfp — leaves, effects, etc.)
+    const decoWrap = document.getElementById('avatar-decoration');
+    if (cfg.appearance.showAvatarDecoration && u.avatar_decoration_data?.asset) {
+      decoWrap.querySelector('img').src = `https://cdn.discordapp.com/avatar-decoration-presets/${u.avatar_decoration_data.asset}.png`;
+      decoWrap.classList.add('show');
+    } else {
+      decoWrap.classList.remove('show');
     }
   }
 
@@ -517,24 +486,16 @@ async function loadLanyard(discordId, cfg) {
   try {
     const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
     const json = await res.json();
-    if (!json.success) return;
-    applyLanyardData(json.data, cfg);
-  } catch (e) {
-    console.warn('Lanyard fetch failed', e);
-  }
+    if (json.success) applyLanyardData(json.data, cfg);
+  } catch (e) { console.warn('Lanyard fetch failed', e); }
 
-  // live updates via websocket so status/activity change without a page refresh
   try {
     if (lanyardSocket) lanyardSocket.close();
     lanyardSocket = new WebSocket('wss://api.lanyard.rest/socket');
-    lanyardSocket.onopen = () => {
-      lanyardSocket.send(JSON.stringify({ op: 2, d: { subscribe_to_id: discordId } }));
-    };
+    lanyardSocket.onopen = () => lanyardSocket.send(JSON.stringify({ op: 2, d: { subscribe_to_id: discordId } }));
     lanyardSocket.onmessage = (ev) => {
       const msg = JSON.parse(ev.data);
-      if (msg.op === 0 && (msg.t === 'INIT_STATE' || msg.t === 'PRESENCE_UPDATE')) {
-        applyLanyardData(msg.d, cfg);
-      }
+      if (msg.op === 0 && (msg.t === 'INIT_STATE' || msg.t === 'PRESENCE_UPDATE')) applyLanyardData(msg.d, cfg);
     };
   } catch (e) { console.warn('Lanyard socket failed', e); }
 }
@@ -545,6 +506,7 @@ async function init() {
     const cfg = await res.json();
     applyTheme(cfg);
     renderProfile(cfg);
+    loadViewCount(cfg.username);
     if (cfg.discordId) loadLanyard(cfg.discordId, cfg);
   } catch (e) {
     document.getElementById('username').textContent = 'profile.json not found';
@@ -552,32 +514,25 @@ async function init() {
   }
 }
 
-// live preview: accept full profile pushes from admin.html
 window.addEventListener('message', (e) => {
   if (e.data?.type === 'preview-update' && e.data.profile) {
     document.getElementById('card').classList.add('no-anim');
     applyTheme(e.data.profile);
     renderProfile(e.data.profile);
+    document.getElementById('view-count').textContent = '123'; // static placeholder in preview mode
   }
 });
 
 document.getElementById('sound-toggle').addEventListener('click', () => {
   const audio = document.getElementById('bg-audio');
   const btn = document.getElementById('sound-toggle');
-  if (audio.paused) {
-    audio.play().then(() => btn.textContent = '🔊').catch(() => {});
-  } else {
-    audio.pause();
-    btn.textContent = '🔇';
-  }
+  if (audio.paused) audio.play().then(() => btn.textContent = '🔊').catch(() => {});
+  else { audio.pause(); btn.textContent = '🔇'; }
 });
 
 window.addEventListener('resize', () => {
   const canvas = document.getElementById('particles');
-  if (canvas.classList.contains('show')) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
+  if (canvas.classList.contains('show')) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 });
 
 init();

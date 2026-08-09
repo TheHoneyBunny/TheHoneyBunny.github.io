@@ -141,6 +141,7 @@
   .fx-tile-neon { color: #fff; text-shadow: 0 0 4px #fff, 0 0 12px #7c5cff, 0 0 24px #7c5cff; }
   .fx-tile-toon { color: #fff; -webkit-text-stroke: 1.5px #000; paint-order: stroke fill; }
   .fx-tile-pop { color: #fff; text-shadow: 2px 2px 0 #7c5cff; }
+  .fx-tile-shine { background-image: linear-gradient(100deg, #fff 30%, #7c5cff 50%, #fff 70%) !important; -webkit-background-clip: text; background-clip: text; color: transparent !important; }
 
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -174,6 +175,8 @@
       <div class="toggle-row"><span>Auto-pobieraj nick z Discorda</span><div class="toggle" id="f-autoUsername"></div></div>
       <div class="toggle-row"><span>Pokaż kolorową obwódkę statusu</span><div class="toggle" id="f-showStatusRing"></div></div>
       <div class="toggle-row"><span>Pokaż kropkę statusu na avatarze</span><div class="toggle" id="f-showStatusBadge"></div></div>
+      <div class="toggle-row"><span>Pokaż dekorację avatara z Discorda</span><div class="toggle" id="f-showAvatarDecoration"></div></div>
+      <div class="hint">Dekoracja to ta animowana ramka wokół avatara (np. listki, motyle) którą kupujesz/wybierasz w Discordzie. Jeśli masz ją ustawioną na koncie, pojawi się automatycznie.</div>
     </div>
   </details>
 
@@ -202,12 +205,23 @@
         <button class="btn-remove-img" data-target="avatar">usuń</button>
       </div>
       <label>Tło strony</label>
-      <div class="file-input-wrap">
+      <div class="grid-2" style="margin-bottom:8px;">
+        <div class="pick-tile" id="bg-type-image">Obraz</div>
+        <div class="pick-tile" id="bg-type-video">Wideo (mp4)</div>
+      </div>
+      <div class="file-input-wrap" id="bg-image-wrap">
         <button class="btn btn-secondary" id="btn-bg">Wgraj obraz</button>
         <input type="file" id="f-bg-file" accept="image/*">
         <img class="thumb" id="bg-thumb" style="display:none;">
         <button class="btn-remove-img" data-target="background">usuń</button>
       </div>
+      <div class="file-input-wrap" id="bg-video-wrap" style="display:none;">
+        <button class="btn btn-secondary" id="btn-bg-video">Wgraj wideo (mp4)</button>
+        <input type="file" id="f-bg-video-file" accept="video/mp4">
+        <span id="bg-video-filename" style="font-size:12px; color:var(--muted);"></span>
+        <button class="btn-remove-img" data-target="backgroundVideo">usuń</button>
+      </div>
+      <div class="hint">Wideo w tle: użyj krótkiego, lekkiego pliku (poniżej ~15MB), bo GitHub ma limit 25MB na plik i długie wideo mocno wydłuży wczytywanie strony.</div>
       <label>Custom cursor</label>
       <div class="file-input-wrap">
         <button class="btn btn-secondary" id="btn-cursor">Wgraj obraz</button>
@@ -275,11 +289,15 @@
       <div class="slider-row"><input type="range" id="f-cardRadius" min="0" max="44" value="28"><span class="slider-val" id="f-cardRadius-val">28px</span></div>
       <label>Ciemność nakładki na tło</label>
       <div class="slider-row"><input type="range" id="f-overlayStrength" min="0" max="100" value="100"><span class="slider-val" id="f-overlayStrength-val">100%</span></div>
+      <label>Zaokrąglenie ikon social</label>
+      <div class="slider-row"><input type="range" id="f-iconRadius" min="0" max="20" value="13"><span class="slider-val" id="f-iconRadius-val">13px</span></div>
 
       <div class="toggle-row"><span>Poświata wokół avatara</span><div class="toggle" id="f-avatarGlow"></div></div>
       <div class="toggle-row"><span>Unoszące się cząsteczki w tle</span><div class="toggle" id="f-particles"></div></div>
+      <div class="toggle-row"><span>Ziarno / grain na tle</span><div class="toggle" id="f-grain"></div></div>
       <div class="toggle-row"><span>Pokaż przycisk dźwięku</span><div class="toggle" id="f-showSoundToggle"></div></div>
       <div class="toggle-row"><span>Pokaż licznik wyświetleń</span><div class="toggle" id="f-showViews"></div></div>
+      <div class="hint">Licznik jest teraz globalny (prawdziwe odsłony od wszystkich odwiedzających), nie lokalny w Twojej przeglądarce. W tym panelu podglądowo zawsze pokazuje przykładową liczbę.</div>
     </div>
   </details>
 
@@ -320,7 +338,8 @@ const TEXT_EFFECTS = [
   { id: 'gradient', label: 'Gradient' },
   { id: 'neon', label: 'Neon' },
   { id: 'toon', label: 'Toon' },
-  { id: 'pop', label: 'Pop' }
+  { id: 'pop', label: 'Pop' },
+  { id: 'shine', label: 'Shine' }
 ];
 
 let state = null;
@@ -336,11 +355,12 @@ function defaultProfile() {
     socials: [{ icon: 'discord', url: '' }],
     colors: { accent: '#ffffff', text: '#ffffff', background: '#0a0a0a', cardTint: '#0f0f12', icon: '#ffffff', glow: '#7c5cff' },
     appearance: {
-      background: '', cursor: '', cardOpacity: 55, blurPx: 22, cardRadius: 28,
-      overlayStrength: 100, avatarGlow: false, particles: false,
+      background: '', backgroundVideo: '', backgroundType: 'image', cursor: '',
+      cardOpacity: 55, blurPx: 22, cardRadius: 28, iconRadius: 13,
+      overlayStrength: 100, avatarGlow: false, particles: false, grain: true,
       showSoundToggle: true, showViews: true, fontDisplay: 'space-grotesk', fontBody: 'space-grotesk',
       textEffect: 'solid',
-      autoAvatar: true, autoUsername: true, showStatusRing: true, showStatusBadge: true
+      autoAvatar: true, autoUsername: true, showStatusRing: true, showStatusBadge: true, showAvatarDecoration: true
     }
   };
 }
@@ -428,15 +448,19 @@ function loadFormFromState() {
   $('f-cardRadius-val').textContent = state.appearance.cardRadius + 'px';
   $('f-overlayStrength').value = state.appearance.overlayStrength;
   $('f-overlayStrength-val').textContent = state.appearance.overlayStrength + '%';
+  $('f-iconRadius').value = state.appearance.iconRadius;
+  $('f-iconRadius-val').textContent = state.appearance.iconRadius + 'px';
 
   $('f-avatarGlow').classList.toggle('on', !!state.appearance.avatarGlow);
   $('f-particles').classList.toggle('on', !!state.appearance.particles);
+  $('f-grain').classList.toggle('on', state.appearance.grain !== false);
   $('f-showSoundToggle').classList.toggle('on', !!state.appearance.showSoundToggle);
   $('f-showViews').classList.toggle('on', !!state.appearance.showViews);
   $('f-autoAvatar').classList.toggle('on', state.appearance.autoAvatar !== false);
   $('f-autoUsername').classList.toggle('on', state.appearance.autoUsername !== false);
   $('f-showStatusRing').classList.toggle('on', state.appearance.showStatusRing !== false);
   $('f-showStatusBadge').classList.toggle('on', state.appearance.showStatusBadge !== false);
+  $('f-showAvatarDecoration').classList.toggle('on', state.appearance.showAvatarDecoration !== false);
 
   $('f-fontDisplay').value = state.appearance.fontDisplay || 'space-grotesk';
 
@@ -444,10 +468,23 @@ function loadFormFromState() {
   updateThumb('bg-thumb', state.appearance.background);
   updateThumb('cursor-thumb', state.appearance.cursor);
   $('audio-filename').textContent = state.audio ? '✓ wgrano' : '';
+  $('bg-video-filename').textContent = state.appearance.backgroundVideo ? '✓ wgrano' : '';
 
+  updateBgTypeUI();
   updateFxActive();
   renderSocials();
 }
+
+function updateBgTypeUI() {
+  const isVideo = state.appearance.backgroundType === 'video';
+  $('bg-type-image').classList.toggle('active', !isVideo);
+  $('bg-type-video').classList.toggle('active', isVideo);
+  $('bg-image-wrap').style.display = isVideo ? 'none' : 'flex';
+  $('bg-video-wrap').style.display = isVideo ? 'flex' : 'none';
+}
+
+$('bg-type-image').addEventListener('click', () => { state.appearance.backgroundType = 'image'; updateBgTypeUI(); commit(); });
+$('bg-type-video').addEventListener('click', () => { state.appearance.backgroundType = 'video'; updateBgTypeUI(); commit(); });
 
 function updateThumb(elId, src) {
   const el = $(elId);
@@ -521,6 +558,7 @@ bindSlider('f-cardOpacity', 'cardOpacity', '%');
 bindSlider('f-blurPx', 'blurPx', 'px');
 bindSlider('f-cardRadius', 'cardRadius', 'px');
 bindSlider('f-overlayStrength', 'overlayStrength', '%');
+bindSlider('f-iconRadius', 'iconRadius', 'px');
 
 function bindToggle(id, path) {
   $(id).addEventListener('click', () => {
@@ -537,6 +575,8 @@ bindToggle('f-autoAvatar', 'autoAvatar');
 bindToggle('f-autoUsername', 'autoUsername');
 bindToggle('f-showStatusRing', 'showStatusRing');
 bindToggle('f-showStatusBadge', 'showStatusBadge');
+bindToggle('f-showAvatarDecoration', 'showAvatarDecoration');
+bindToggle('f-grain', 'grain');
 
 $('f-fontDisplay').addEventListener('change', () => {
   state.appearance.fontDisplay = $('f-fontDisplay').value;
@@ -576,6 +616,26 @@ wireFileInput('btn-bg', 'f-bg-file', 'bg-thumb', (v) => { state.appearance.backg
 wireFileInput('btn-cursor', 'f-cursor-file', 'cursor-thumb', (v) => { state.appearance.cursor = v; }, 'assets');
 wireFileInput('btn-audio', 'f-audio-file', null, (v) => { state.audio = v; }, 'assets', true);
 
+$('btn-bg-video').addEventListener('click', () => $('f-bg-video-file').click());
+$('f-bg-video-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 20 * 1024 * 1024) {
+    alert('Plik jest większy niż 20MB. GitHub może odrzucić upload — spróbuj skompresować wideo (np. na cloudconvert.com lub HandBrake) do krótszego klipu lub niższej rozdzielczości.');
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    state.appearance.backgroundVideo = dataUrl;
+    const base64 = dataUrl.split(',')[1];
+    const repoPath = `assets/${Date.now()}.mp4`;
+    pendingUploads[repoPath] = { base64, dataUrl };
+    $('bg-video-filename').textContent = '✓ ' + file.name;
+    commit();
+  };
+  reader.readAsDataURL(file);
+});
+
 document.querySelectorAll('.btn-remove-img').forEach(btn => {
   btn.addEventListener('click', () => {
     const target = btn.dataset.target;
@@ -583,6 +643,7 @@ document.querySelectorAll('.btn-remove-img').forEach(btn => {
     if (target === 'background') { state.appearance.background = ''; updateThumb('bg-thumb', ''); }
     if (target === 'cursor') { state.appearance.cursor = ''; updateThumb('cursor-thumb', ''); }
     if (target === 'audio') { state.audio = ''; $('audio-filename').textContent = ''; }
+    if (target === 'backgroundVideo') { state.appearance.backgroundVideo = ''; $('bg-video-filename').textContent = ''; }
     commit();
   });
 });
@@ -659,6 +720,7 @@ $('save-btn').addEventListener('click', async () => {
       await ghPutFile(repoPath, upload.base64, `Upload ${repoPath}`, existing?.sha);
       if (toSave.avatar === upload.dataUrl) toSave.avatar = repoPath;
       if (toSave.appearance.background === upload.dataUrl) toSave.appearance.background = repoPath;
+      if (toSave.appearance.backgroundVideo === upload.dataUrl) toSave.appearance.backgroundVideo = repoPath;
       if (toSave.appearance.cursor === upload.dataUrl) toSave.appearance.cursor = repoPath;
       if (toSave.audio === upload.dataUrl) toSave.audio = repoPath;
     }
