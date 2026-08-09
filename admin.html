@@ -7,30 +7,32 @@
 <style>
   :root {
     --bg: #0d0d0f;
-    --panel: #161619;
-    --border: #262629;
+    --panel: #16161a;
+    --border: #26262b;
     --text: #f2f2f3;
     --muted: #8a8a90;
     --accent: #7c5cff;
     --accent-hover: #6b4ce8;
     --danger: #f23f43;
     --success: #23a55a;
+    --radius: 14px;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
     background: var(--bg);
     color: var(--text);
     display: flex;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
 
   #sidebar {
     width: 440px;
     flex-shrink: 0;
     border-right: 1px solid var(--border);
-    padding: 28px 24px 100px;
+    padding: 28px 24px 110px;
     overflow-y: auto;
     height: 100vh;
   }
@@ -44,62 +46,37 @@
     position: relative;
   }
 
-  #preview-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
+  #preview-frame { width: 100%; height: 100%; border: none; }
 
-  h1 { font-size: 18px; margin: 0 0 4px; }
-  .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  h1 { font-size: 19px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
 
-  details.section { margin-bottom: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+  details.section { margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); overflow: hidden; }
   details.section[open] { padding-bottom: 6px; }
   summary.section-title {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text);
-    font-weight: 700;
-    padding: 14px 16px;
-    cursor: pointer;
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text);
+    font-weight: 700; padding: 15px 16px; cursor: pointer; list-style: none;
+    display: flex; justify-content: space-between; align-items: center;
   }
   summary.section-title::-webkit-details-marker { display: none; }
-  summary.section-title::after { content: '▸'; color: var(--muted); transition: transform 0.15s; }
+  summary.section-title::after { content: '▸'; color: var(--muted); transition: transform 0.2s var(--ease); font-size: 11px; }
   details[open] > summary.section-title::after { transform: rotate(90deg); }
   .section-body { padding: 4px 16px 14px; }
 
-  label {
-    display: block;
-    font-size: 13px;
-    margin-bottom: 6px;
-    margin-top: 14px;
-    color: #c7c7cc;
-  }
+  label { display: block; font-size: 13px; margin-bottom: 6px; margin-top: 14px; color: #c7c7cc; }
   label:first-child { margin-top: 0; }
+  .hint { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
 
   input[type=text], input[type=url], textarea, select.full {
-    width: 100%;
-    background: #0d0d0f;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 11px;
-    color: var(--text);
-    font-size: 13.5px;
-    font-family: inherit;
+    width: 100%; background: #0d0d0f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; color: var(--text); font-size: 13.5px; font-family: inherit;
+    transition: border-color 0.15s ease;
   }
   input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
   textarea { resize: vertical; min-height: 60px; }
 
   .color-row { display: flex; align-items: center; gap: 8px; }
-  input[type=color] {
-    width: 38px; height: 32px; padding: 0; border: 1px solid var(--border);
-    border-radius: 6px; background: none; cursor: pointer; flex-shrink: 0;
-  }
+  input[type=color] { width: 38px; height: 32px; padding: 0; border: 1px solid var(--border); border-radius: 8px; background: none; cursor: pointer; flex-shrink: 0; }
 
   .slider-row { display: flex; align-items: center; gap: 10px; }
   input[type=range] { flex: 1; accent-color: var(--accent); }
@@ -107,24 +84,19 @@
 
   .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 12px; }
   .toggle-row span { font-size: 13px; color: #c7c7cc; }
-  .toggle {
-    width: 40px; height: 22px; border-radius: 11px; background: #333;
-    position: relative; cursor: pointer; transition: background 0.15s; flex-shrink: 0;
-  }
+  .toggle { width: 42px; height: 24px; border-radius: 12px; background: #333; position: relative; cursor: pointer; transition: background 0.2s cubic-bezier(0.34,1.56,0.64,1); flex-shrink: 0; }
   .toggle.on { background: var(--accent); }
-  .toggle::after {
-    content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
-    border-radius: 50%; background: #fff; transition: left 0.15s;
-  }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left 0.2s cubic-bezier(0.34,1.56,0.64,1); }
   .toggle.on::after { left: 20px; }
 
   .social-item { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
-  .social-item select { background: #0d0d0f; border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 8px; font-size: 13px; }
+  .social-item select { background: #0d0d0f; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px; font-size: 13px; }
   .social-item input { flex: 1; }
   .icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 4px 8px; }
   .icon-btn:hover { color: var(--danger); }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 15px; border-radius: 10px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), background 0.15s ease; }
+  .btn:active { transform: scale(0.96); }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); }
   .btn-secondary { background: #1c1c20; color: var(--text); border: 1px solid var(--border); }
@@ -135,31 +107,40 @@
 
   .file-input-wrap { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
   .file-input-wrap input[type=file] { display: none; }
-  .thumb { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border); }
+  .thumb { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
 
   #save-bar {
-    position: fixed;
-    bottom: 0; left: 0; width: 440px;
-    padding: 16px 24px;
-    background: rgba(13,13,15,0.95);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border);
-    display: flex; gap: 10px; align-items: center;
+    position: fixed; bottom: 0; left: 0; width: 440px; padding: 16px 24px;
+    background: rgba(13,13,15,0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
   }
   #save-status { font-size: 12px; color: var(--muted); }
   #save-status.ok { color: var(--success); }
   #save-status.err { color: var(--danger); }
+  #autosave-indicator { font-size: 11px; color: var(--muted); width: 100%; }
 
-  #gh-setup { margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+  #gh-setup { margin-bottom: 18px; font-size: 13px; line-height: 1.6; }
   #gh-setup a { color: var(--accent); }
   #gh-setup.connected summary.section-title { color: var(--success); }
 
   .preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
-  .preset-swatch {
-    width: 44px; height: 44px; border-radius: 8px; cursor: pointer; border: 2px solid transparent;
-    display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  .preset-swatch { width: 46px; height: 46px; border-radius: 12px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1); }
+  .preset-swatch:hover { border-color: var(--accent); transform: scale(1.06); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .pick-tile {
+    border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 6px; text-align: center;
+    cursor: pointer; font-size: 12.5px; color: #c7c7cc; background: #0d0d0f; transition: all 0.15s ease;
   }
-  .preset-swatch:hover { border-color: var(--accent); }
+  .pick-tile:hover { border-color: #444; }
+  .pick-tile.active { border-color: var(--accent); background: rgba(124,92,255,0.12); color: #fff; }
+  .pick-tile.fx-preview { font-weight: 700; font-size: 16px; padding: 14px 6px; }
+  .fx-tile-solid { color: #fff; }
+  .fx-tile-gradient { background-image: linear-gradient(90deg, #c9b6ff, #7c5cff) !important; -webkit-background-clip: text; background-clip: text; color: transparent !important; }
+  .fx-tile-neon { color: #fff; text-shadow: 0 0 4px #fff, 0 0 12px #7c5cff, 0 0 24px #7c5cff; }
+  .fx-tile-toon { color: #fff; -webkit-text-stroke: 1.5px #000; paint-order: stroke fill; }
+  .fx-tile-pop { color: #fff; text-shadow: 2px 2px 0 #7c5cff; }
 
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -169,7 +150,7 @@
 
 <div id="sidebar">
   <h1>Panel edycji</h1>
-  <div class="subtitle">Zmiany zapisują się do Twojego repo na GitHub</div>
+  <div class="subtitle">Zmiany zapisują się automatycznie w przeglądarce, i na GitHub po kliknięciu "Zapisz"</div>
 
   <details class="section" id="gh-setup" open>
     <summary class="section-title">Połączenie z GitHub</summary>
@@ -179,9 +160,20 @@
       <label>Repozytorium (użytkownik/repo)</label>
       <input type="text" id="gh-repo" placeholder="twojnick/discord-bio">
       <button class="btn btn-secondary btn-block" id="gh-connect" style="margin-top:10px;">Połącz i wczytaj profil</button>
-      <div style="margin-top:10px; color: var(--muted); font-size:12px;">
-        Nie masz tokena? <a href="https://github.com/settings/tokens/new?description=discord-bio-admin&scopes=repo" target="_blank">Wygeneruj tutaj</a> (zaznacz <code>repo</code>), wklej powyżej. Zapisuje się tylko lokalnie w przeglądarce.
-      </div>
+      <div class="hint">Nie masz tokena? <a href="https://github.com/settings/tokens/new?description=discord-bio-admin&scopes=repo" target="_blank">Wygeneruj tutaj</a> (zaznacz <code>repo</code>). Zapisuje się tylko lokalnie w przeglądarce.</div>
+    </div>
+  </details>
+
+  <details class="section" open>
+    <summary class="section-title">Discord auto-sync</summary>
+    <div class="section-body">
+      <label>Discord ID</label>
+      <input type="text" id="f-discordId" placeholder="123456789012345678">
+      <div class="hint">Ustawienia Discord → Zaawansowane → Tryb dewelopera, potem PPM na swój profil → "Kopiuj ID użytkownika". Wymaga dołączenia do serwera Lanyard: <a href="https://discord.gg/lanyard" target="_blank">discord.gg/lanyard</a></div>
+      <div class="toggle-row"><span>Auto-pobieraj avatar z Discorda</span><div class="toggle" id="f-autoAvatar"></div></div>
+      <div class="toggle-row"><span>Auto-pobieraj nick z Discorda</span><div class="toggle" id="f-autoUsername"></div></div>
+      <div class="toggle-row"><span>Pokaż kolorową obwódkę statusu</span><div class="toggle" id="f-showStatusRing"></div></div>
+      <div class="toggle-row"><span>Pokaż kropkę statusu na avatarze</span><div class="toggle" id="f-showStatusBadge"></div></div>
     </div>
   </details>
 
@@ -190,21 +182,19 @@
     <div class="section-body">
       <label>Nazwa użytkownika (Discord)</label>
       <input type="text" id="f-username">
-      <label>Wyświetlana nazwa</label>
+      <label>Wyświetlana nazwa <span class="hint" style="display:inline;">(używana gdy auto-nick wyłączony)</span></label>
       <input type="text" id="f-displayName">
       <label>Zaimki</label>
       <input type="text" id="f-pronouns" placeholder="np. on/jego">
       <label>Opis</label>
       <textarea id="f-description"></textarea>
-      <label>Discord ID (status na żywo)</label>
-      <input type="text" id="f-discordId" placeholder="123456789012345678">
     </div>
   </details>
 
   <details class="section">
     <summary class="section-title">Media</summary>
     <div class="section-body">
-      <label>Avatar</label>
+      <label>Avatar <span class="hint" style="display:inline;">(używany gdy auto-avatar wyłączony)</span></label>
       <div class="file-input-wrap">
         <button class="btn btn-secondary" id="btn-avatar">Wgraj obraz</button>
         <input type="file" id="f-avatar-file" accept="image/*">
@@ -236,12 +226,30 @@
   </details>
 
   <details class="section" open>
+    <summary class="section-title">Styl nazwy użytkownika</summary>
+    <div class="section-body">
+      <label>Efekt tekstu</label>
+      <div class="grid-3" id="fx-picker"></div>
+
+      <label>Font</label>
+      <select class="full" id="f-fontDisplay">
+        <option value="space-grotesk">Space Grotesk</option>
+        <option value="system">Systemowy</option>
+        <option value="mono">Mono</option>
+        <option value="serif">Serif</option>
+        <option value="rounded">Zaokrąglony</option>
+        <option value="medieval">Medieval</option>
+      </select>
+    </div>
+  </details>
+
+  <details class="section" open>
     <summary class="section-title">Kolory</summary>
     <div class="section-body">
       <label>Gotowe zestawy</label>
       <div class="preset-row" id="presets"></div>
 
-      <label>Akcent (nazwa użytkownika, linki)</label>
+      <label>Akcent (nazwa, linki)</label>
       <div class="color-row"><input type="color" id="f-accent"><input type="text" id="f-accent-hex"></div>
       <label>Tekst / opis</label>
       <div class="color-row"><input type="color" id="f-text"><input type="text" id="f-text-hex"></div>
@@ -251,7 +259,7 @@
       <div class="color-row"><input type="color" id="f-cardTint"><input type="text" id="f-cardTint-hex"></div>
       <label>Ikony social</label>
       <div class="color-row"><input type="color" id="f-icon"><input type="text" id="f-icon-hex"></div>
-      <label>Poświata (glow)</label>
+      <label>Poświata / drugi kolor (gradient, neon)</label>
       <div class="color-row"><input type="color" id="f-glow"><input type="text" id="f-glow-hex"></div>
     </div>
   </details>
@@ -262,39 +270,16 @@
       <label>Przezroczystość karty</label>
       <div class="slider-row"><input type="range" id="f-cardOpacity" min="0" max="100" value="55"><span class="slider-val" id="f-cardOpacity-val">55%</span></div>
       <label>Rozmycie karty</label>
-      <div class="slider-row"><input type="range" id="f-blurPx" min="0" max="60" value="18"><span class="slider-val" id="f-blurPx-val">18px</span></div>
+      <div class="slider-row"><input type="range" id="f-blurPx" min="0" max="60" value="22"><span class="slider-val" id="f-blurPx-val">22px</span></div>
       <label>Zaokrąglenie rogów karty</label>
-      <div class="slider-row"><input type="range" id="f-cardRadius" min="0" max="40" value="20"><span class="slider-val" id="f-cardRadius-val">20px</span></div>
+      <div class="slider-row"><input type="range" id="f-cardRadius" min="0" max="44" value="28"><span class="slider-val" id="f-cardRadius-val">28px</span></div>
       <label>Ciemność nakładki na tło</label>
       <div class="slider-row"><input type="range" id="f-overlayStrength" min="0" max="100" value="100"><span class="slider-val" id="f-overlayStrength-val">100%</span></div>
 
-      <div class="toggle-row"><span>Poświata na nazwie użytkownika</span><div class="toggle" id="f-usernameGlow"></div></div>
       <div class="toggle-row"><span>Poświata wokół avatara</span><div class="toggle" id="f-avatarGlow"></div></div>
       <div class="toggle-row"><span>Unoszące się cząsteczki w tle</span><div class="toggle" id="f-particles"></div></div>
       <div class="toggle-row"><span>Pokaż przycisk dźwięku</span><div class="toggle" id="f-showSoundToggle"></div></div>
       <div class="toggle-row"><span>Pokaż licznik wyświetleń</span><div class="toggle" id="f-showViews"></div></div>
-    </div>
-  </details>
-
-  <details class="section">
-    <summary class="section-title">Typografia</summary>
-    <div class="section-body">
-      <label>Font nazwy użytkownika</label>
-      <select class="full" id="f-fontDisplay">
-        <option value="space-grotesk">Space Grotesk (nowoczesny)</option>
-        <option value="system">Systemowy (neutralny)</option>
-        <option value="mono">Mono (techniczny)</option>
-        <option value="serif">Serif (elegancki)</option>
-        <option value="rounded">Zaokrąglony (miękki)</option>
-      </select>
-      <label>Font opisu i tekstu</label>
-      <select class="full" id="f-fontBody">
-        <option value="space-grotesk">Space Grotesk (nowoczesny)</option>
-        <option value="system">Systemowy (neutralny)</option>
-        <option value="mono">Mono (techniczny)</option>
-        <option value="serif">Serif (elegancki)</option>
-        <option value="rounded">Zaokrąglony (miękki)</option>
-      </select>
     </div>
   </details>
 
@@ -310,6 +295,7 @@
 <div id="save-bar">
   <button class="btn btn-primary" id="save-btn">Zapisz i opublikuj</button>
   <span id="save-status"></span>
+  <span id="autosave-indicator">Wersja robocza zapisana lokalnie — nic nie zginie po odświeżeniu.</span>
 </div>
 
 <div id="preview-pane">
@@ -318,6 +304,7 @@
 
 <script>
 const SOCIAL_OPTIONS = ['discord','github','spotify','instagram','twitter','youtube','twitch','telegram','tiktok','linkedin','website'];
+const LOCAL_KEY = 'discord_bio_draft_v3';
 
 const COLOR_PRESETS = [
   { name: 'Fiolet', accent:'#c9b6ff', text:'#ffffff', background:'#0a0a0a', cardTint:'#14101f', icon:'#ffffff', glow:'#7c5cff' },
@@ -328,9 +315,17 @@ const COLOR_PRESETS = [
   { name: 'Mono', accent:'#ffffff', text:'#ffffff', background:'#0a0a0a', cardTint:'#0f0f12', icon:'#ffffff', glow:'#888888' }
 ];
 
+const TEXT_EFFECTS = [
+  { id: 'solid', label: 'Solid' },
+  { id: 'gradient', label: 'Gradient' },
+  { id: 'neon', label: 'Neon' },
+  { id: 'toon', label: 'Toon' },
+  { id: 'pop', label: 'Pop' }
+];
+
 let state = null;
 let gh = { token: '', repo: '', sha: null };
-const pendingUploads = {}; // path -> base64 content, cleared after successful save
+const pendingUploads = {};
 
 function $(id) { return document.getElementById(id); }
 
@@ -341,15 +336,16 @@ function defaultProfile() {
     socials: [{ icon: 'discord', url: '' }],
     colors: { accent: '#ffffff', text: '#ffffff', background: '#0a0a0a', cardTint: '#0f0f12', icon: '#ffffff', glow: '#7c5cff' },
     appearance: {
-      background: '', cursor: '', cardOpacity: 55, blurPx: 18, cardRadius: 20,
-      overlayStrength: 100, usernameGlow: false, avatarGlow: false, particles: false,
-      showSoundToggle: true, showViews: true, fontDisplay: 'space-grotesk', fontBody: 'space-grotesk'
+      background: '', cursor: '', cardOpacity: 55, blurPx: 22, cardRadius: 28,
+      overlayStrength: 100, avatarGlow: false, particles: false,
+      showSoundToggle: true, showViews: true, fontDisplay: 'space-grotesk', fontBody: 'space-grotesk',
+      textEffect: 'solid',
+      autoAvatar: true, autoUsername: true, showStatusRing: true, showStatusBadge: true
     }
   };
 }
 
 function ensureShape(obj) {
-  // merges loaded profile with defaults so older/incomplete profile.json files never crash the panel
   const d = defaultProfile();
   return {
     ...d, ...obj,
@@ -357,6 +353,19 @@ function ensureShape(obj) {
     appearance: { ...d.appearance, ...(obj.appearance || {}) },
     socials: (obj.socials && obj.socials.length) ? obj.socials : d.socials
   };
+}
+
+// --- persistence: every change writes the full state to localStorage immediately,
+// so a refresh (or closing the tab) never loses anything.
+function saveDraft() {
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if (raw) return ensureShape(JSON.parse(raw));
+  } catch (e) {}
+  return null;
 }
 
 function renderPresets() {
@@ -368,16 +377,34 @@ function renderPresets() {
     el.style.background = `linear-gradient(135deg, ${p.background}, ${p.accent})`;
     el.title = p.name;
     el.addEventListener('click', () => {
-      state.colors.accent = p.accent;
-      state.colors.text = p.text;
-      state.colors.background = p.background;
-      state.colors.cardTint = p.cardTint;
-      state.colors.icon = p.icon;
-      state.colors.glow = p.glow;
+      Object.assign(state.colors, { accent: p.accent, text: p.text, background: p.background, cardTint: p.cardTint, icon: p.icon, glow: p.glow });
       loadFormFromState();
-      syncAndPreview();
+      commit();
     });
     wrap.appendChild(el);
+  });
+}
+
+function renderFxPicker() {
+  const wrap = $('fx-picker');
+  wrap.innerHTML = '';
+  TEXT_EFFECTS.forEach(fx => {
+    const el = document.createElement('div');
+    el.className = 'pick-tile fx-preview fx-tile-' + fx.id;
+    el.textContent = fx.label;
+    el.dataset.fx = fx.id;
+    el.addEventListener('click', () => {
+      state.appearance.textEffect = fx.id;
+      renderFxPicker();
+      commit();
+    });
+    wrap.appendChild(el);
+  });
+  updateFxActive();
+}
+function updateFxActive() {
+  document.querySelectorAll('#fx-picker .pick-tile').forEach(el => {
+    el.classList.toggle('active', el.dataset.fx === state.appearance.textEffect);
   });
 }
 
@@ -402,20 +429,23 @@ function loadFormFromState() {
   $('f-overlayStrength').value = state.appearance.overlayStrength;
   $('f-overlayStrength-val').textContent = state.appearance.overlayStrength + '%';
 
-  $('f-usernameGlow').classList.toggle('on', !!state.appearance.usernameGlow);
   $('f-avatarGlow').classList.toggle('on', !!state.appearance.avatarGlow);
   $('f-particles').classList.toggle('on', !!state.appearance.particles);
   $('f-showSoundToggle').classList.toggle('on', !!state.appearance.showSoundToggle);
   $('f-showViews').classList.toggle('on', !!state.appearance.showViews);
+  $('f-autoAvatar').classList.toggle('on', state.appearance.autoAvatar !== false);
+  $('f-autoUsername').classList.toggle('on', state.appearance.autoUsername !== false);
+  $('f-showStatusRing').classList.toggle('on', state.appearance.showStatusRing !== false);
+  $('f-showStatusBadge').classList.toggle('on', state.appearance.showStatusBadge !== false);
 
   $('f-fontDisplay').value = state.appearance.fontDisplay || 'space-grotesk';
-  $('f-fontBody').value = state.appearance.fontBody || 'space-grotesk';
 
   updateThumb('avatar-thumb', state.avatar);
   updateThumb('bg-thumb', state.appearance.background);
   updateThumb('cursor-thumb', state.appearance.cursor);
-  $('audio-filename').textContent = state.audio ? state.audio.split('/').pop() : '';
+  $('audio-filename').textContent = state.audio ? '✓ wgrano' : '';
 
+  updateFxActive();
   renderSocials();
 }
 
@@ -442,24 +472,27 @@ function renderSocials() {
   });
   list.querySelectorAll('.social-icon').forEach(el => el.addEventListener('change', e => {
     state.socials[e.target.dataset.i].icon = e.target.value;
-    syncAndPreview();
+    commit();
   }));
   list.querySelectorAll('.social-url').forEach(el => el.addEventListener('input', e => {
     state.socials[e.target.dataset.i].url = e.target.value;
-    syncAndPreview();
+    commit();
   }));
   list.querySelectorAll('.social-remove').forEach(el => el.addEventListener('click', e => {
     state.socials.splice(e.target.dataset.i, 1);
     renderSocials();
-    syncAndPreview();
+    commit();
   }));
 }
 
+// commit = the single place that runs after every field change: saves draft + updates live preview
+function commit() {
+  saveDraft();
+  syncAndPreview();
+}
+
 function bindSimple(id, path) {
-  $(id).addEventListener('input', () => {
-    state[path] = $(id).value;
-    syncAndPreview();
-  });
+  $(id).addEventListener('input', () => { state[path] = $(id).value; commit(); });
 }
 ['username','displayName','pronouns','description','discordId'].forEach(f => bindSimple('f-' + f, f));
 
@@ -467,12 +500,12 @@ function bindSimple(id, path) {
   $('f-' + k).addEventListener('input', () => {
     state.colors[k] = $('f-' + k).value;
     $('f-' + k + '-hex').value = $('f-' + k).value;
-    syncAndPreview();
+    commit();
   });
   $('f-' + k + '-hex').addEventListener('change', () => {
     state.colors[k] = $('f-' + k + '-hex').value;
     $('f-' + k).value = $('f-' + k + '-hex').value;
-    syncAndPreview();
+    commit();
   });
 });
 
@@ -481,7 +514,7 @@ function bindSlider(id, path, suffix) {
     const v = parseInt($(id).value, 10);
     state.appearance[path] = v;
     $(id + '-val').textContent = v + suffix;
-    syncAndPreview();
+    commit();
   });
 }
 bindSlider('f-cardOpacity', 'cardOpacity', '%');
@@ -493,28 +526,30 @@ function bindToggle(id, path) {
   $(id).addEventListener('click', () => {
     state.appearance[path] = !state.appearance[path];
     $(id).classList.toggle('on', state.appearance[path]);
-    syncAndPreview();
+    commit();
   });
 }
-bindToggle('f-usernameGlow', 'usernameGlow');
 bindToggle('f-avatarGlow', 'avatarGlow');
 bindToggle('f-particles', 'particles');
 bindToggle('f-showSoundToggle', 'showSoundToggle');
 bindToggle('f-showViews', 'showViews');
+bindToggle('f-autoAvatar', 'autoAvatar');
+bindToggle('f-autoUsername', 'autoUsername');
+bindToggle('f-showStatusRing', 'showStatusRing');
+bindToggle('f-showStatusBadge', 'showStatusBadge');
 
-$('f-fontDisplay').addEventListener('change', () => { state.appearance.fontDisplay = $('f-fontDisplay').value; syncAndPreview(); });
-$('f-fontBody').addEventListener('change', () => { state.appearance.fontBody = $('f-fontBody').value; syncAndPreview(); });
+$('f-fontDisplay').addEventListener('change', () => {
+  state.appearance.fontDisplay = $('f-fontDisplay').value;
+  state.appearance.fontBody = $('f-fontDisplay').value;
+  commit();
+});
 
 $('add-social').addEventListener('click', () => {
   state.socials.push({ icon: 'website', url: '' });
   renderSocials();
-  syncAndPreview();
+  commit();
 });
 
-// --- file uploads: converted to base64 data URLs immediately for both preview AND storage in state,
-// so state.avatar / state.appearance.background / etc. always hold a real, renderable value —
-// nothing ever "disappears" when a different field changes. On save, the base64 is uploaded as a
-// real file to the repo and the field is swapped to point at that file's path.
 function wireFileInput(btnId, fileId, thumbId, setPath, folder, isAudio) {
   $(btnId).addEventListener('click', () => $(fileId).click());
   $(fileId).addEventListener('change', (e) => {
@@ -523,14 +558,14 @@ function wireFileInput(btnId, fileId, thumbId, setPath, folder, isAudio) {
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
-      setPath(dataUrl); // preview immediately using the data URL itself — always valid, never overwritten by other fields
+      setPath(dataUrl);
       const base64 = dataUrl.split(',')[1];
       const ext = file.name.split('.').pop();
       const repoPath = `${folder}/${Date.now()}.${ext}`;
-      pendingUploads[repoPath] = { base64, appliesTo: setPath, dataUrl };
-      if (isAudio) $('audio-filename').textContent = file.name;
+      pendingUploads[repoPath] = { base64, dataUrl };
+      if (isAudio) $('audio-filename').textContent = '✓ ' + file.name;
       else updateThumb(thumbId, dataUrl);
-      syncAndPreview();
+      commit();
     };
     reader.readAsDataURL(file);
   });
@@ -548,24 +583,17 @@ document.querySelectorAll('.btn-remove-img').forEach(btn => {
     if (target === 'background') { state.appearance.background = ''; updateThumb('bg-thumb', ''); }
     if (target === 'cursor') { state.appearance.cursor = ''; updateThumb('cursor-thumb', ''); }
     if (target === 'audio') { state.audio = ''; $('audio-filename').textContent = ''; }
-    syncAndPreview();
+    commit();
   });
 });
 
 function syncAndPreview() {
   const frame = $('preview-frame');
   if (!frame.contentWindow) return;
-  // state already holds real data-URLs for any pending uploads, so the full object is always
-  // self-consistent — no partial-preview substitution logic needed here.
-  try {
-    frame.contentWindow.postMessage({ type: 'preview-update', profile: state }, '*');
-  } catch (e) {}
+  try { frame.contentWindow.postMessage({ type: 'preview-update', profile: state }, '*'); } catch (e) {}
 }
 
-// --- GitHub connection ---
-function ghHeaders() {
-  return { 'Authorization': `Bearer ${gh.token}`, 'Accept': 'application/vnd.github+json' };
-}
+function ghHeaders() { return { 'Authorization': `Bearer ${gh.token}`, 'Accept': 'application/vnd.github+json' }; }
 
 async function ghGetFile(path) {
   const res = await fetch(`https://api.github.com/repos/${gh.repo}/contents/${path}`, { headers: ghHeaders() });
@@ -577,9 +605,7 @@ async function ghPutFile(path, contentBase64, message, sha) {
   const body = { message, content: contentBase64 };
   if (sha) body.sha = sha;
   const res = await fetch(`https://api.github.com/repos/${gh.repo}/contents/${path}`, {
-    method: 'PUT',
-    headers: { ...ghHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    method: 'PUT', headers: { ...ghHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(body)
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -598,7 +624,12 @@ $('gh-connect').addEventListener('click', async () => {
   $('gh-connect').textContent = 'Łączenie...';
   try {
     const file = await ghGetFile('profile.json');
-    if (file) {
+    const draft = loadDraft();
+    if (draft) {
+      // a local draft always wins over the repo version, since it's the most recent edit
+      state = draft;
+      gh.sha = file ? file.sha : null;
+    } else if (file) {
       state = ensureShape(JSON.parse(decodeURIComponent(escape(atob(file.content)))));
       gh.sha = file.sha;
     } else {
@@ -606,7 +637,7 @@ $('gh-connect').addEventListener('click', async () => {
       gh.sha = null;
     }
     loadFormFromState();
-    syncAndPreview();
+    commit();
     $('gh-setup').classList.add('connected');
     $('gh-connect').textContent = '✓ Połączono — profil wczytany';
   } catch (e) {
@@ -623,7 +654,6 @@ $('save-btn').addEventListener('click', async () => {
   try {
     const toSave = JSON.parse(JSON.stringify(state));
 
-    // upload any pending files, then repoint the matching state field at the real repo path
     for (const [repoPath, upload] of Object.entries(pendingUploads)) {
       const existing = await ghGetFile(repoPath).catch(() => null);
       await ghPutFile(repoPath, upload.base64, `Upload ${repoPath}`, existing?.sha);
@@ -638,8 +668,9 @@ $('save-btn').addEventListener('click', async () => {
     const result = await ghPutFile('profile.json', b64, 'Update profile via admin panel', gh.sha);
     gh.sha = result.content.sha;
 
-    state = toSave; // switch local state to the saved repo-path version too
+    state = toSave;
     Object.keys(pendingUploads).forEach(k => delete pendingUploads[k]);
+    saveDraft();
     loadFormFromState();
 
     $('save-status').textContent = '✓ Zapisano! Strona zaktualizuje się za ok. 30–60s.';
@@ -657,9 +688,13 @@ window.addEventListener('load', () => {
   const r = localStorage.getItem('gh_repo');
   if (t) $('gh-token').value = t;
   if (r) $('gh-repo').value = r;
-  state = defaultProfile();
+
+  state = loadDraft() || defaultProfile();
+
   renderPresets();
+  renderFxPicker();
   loadFormFromState();
+
   $('preview-frame').addEventListener('load', () => syncAndPreview());
 });
 </script>

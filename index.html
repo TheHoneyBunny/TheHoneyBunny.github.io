@@ -8,6 +8,7 @@
 <style>
   :root {
     --accent: #ffffff;
+    --accent-2: #7c5cff;
     --text: #ffffff;
     --text-secondary: rgba(255,255,255,0.75);
     --bg-solid: #0a0a0a;
@@ -16,10 +17,12 @@
     --glow: #7c5cff;
     --card-bg: rgba(15,15,18,0.55);
     --card-border: rgba(255,255,255,0.08);
-    --card-blur: 18px;
-    --card-radius: 20px;
+    --card-blur: 22px;
+    --card-radius: 28px;
     --font-display: 'Space Grotesk', -apple-system, sans-serif;
     --font-body: 'Space Grotesk', -apple-system, sans-serif;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,6 +33,7 @@
     background: var(--bg-solid);
     color: var(--text);
     overflow: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
   #bg-layer {
@@ -74,115 +78,158 @@
   #card {
     position: relative;
     width: min(420px, 100%);
-    padding: 40px 32px 32px;
+    padding: 44px 34px 34px;
     border-radius: var(--card-radius);
     background: var(--card-bg);
-    backdrop-filter: blur(var(--card-blur));
-    -webkit-backdrop-filter: blur(var(--card-blur));
+    backdrop-filter: blur(var(--card-blur)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--card-blur)) saturate(1.4);
     border: 1px solid var(--card-border);
     text-align: center;
     opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    transform: translateY(20px) scale(0.98);
+    transition: opacity 0.8s var(--ease-smooth), transform 0.8s var(--ease-smooth);
+    box-shadow: 0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
   }
 
-  #card.in { opacity: 1; transform: translateY(0); }
-  #card.no-anim { transition: none; }
+  #card.in { opacity: 1; transform: translateY(0) scale(1); }
+  #card.no-anim, #card.no-anim * { transition: none !important; }
 
   #avatar-wrap {
     position: relative;
-    width: 108px;
-    height: 108px;
-    margin: 0 auto 18px;
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 20px;
   }
+
+  #avatar-ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    padding: 3px;
+    background: conic-gradient(from 0deg, var(--ring-color, #747f8d), var(--ring-color, #747f8d));
+    transition: background 0.4s ease;
+  }
+  #avatar-ring.online { --ring-color: #23a55a; }
+  #avatar-ring.idle { --ring-color: #f0b232; }
+  #avatar-ring.dnd { --ring-color: #f23f43; }
+  #avatar-ring.offline { --ring-color: #80848e; }
+  #avatar-ring.hidden { display: none; }
 
   #avatar {
-    width: 108px;
-    height: 108px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid rgba(255,255,255,0.15);
     display: block;
-    background: #222;
+    background: #1a1a1e;
+    border: 3px solid #0f0f12;
   }
+
+  #avatar-wrap.no-ring #avatar {
+    border: 3px solid rgba(255,255,255,0.15);
+  }
+  #avatar-wrap.no-ring #avatar-ring { display: none; }
 
   #avatar-wrap.glow #avatar {
-    box-shadow: 0 0 24px var(--glow), 0 0 50px var(--glow);
+    box-shadow: 0 0 26px var(--glow), 0 0 55px var(--glow);
   }
 
-  .status-dot {
+  .status-badge {
     position: absolute;
-    bottom: 4px;
-    right: 4px;
-    width: 22px;
-    height: 22px;
+    bottom: 2px;
+    right: 2px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: 3px solid #0f0f12;
     background: #747f8d;
+    z-index: 2;
   }
-  .status-dot.hidden { display: none; }
-  .status-dot.online { background: #23a55a; }
-  .status-dot.idle { background: #f0b232; }
-  .status-dot.dnd { background: #f23f43; }
-  .status-dot.offline { background: #80848e; }
+  .status-badge.hidden { display: none; }
+  .status-badge.online { background: #23a55a; }
+  .status-badge.idle { background: #f0b232; }
+  .status-badge.dnd { background: #f23f43; }
+  .status-badge.offline { background: #80848e; }
 
   #username {
     font-family: var(--font-display);
-    font-size: 26px;
+    font-size: 27px;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--accent);
+    display: inline-block;
   }
 
-  #username.glow {
-    text-shadow: 0 0 18px var(--glow), 0 0 40px var(--glow);
+  /* text style effects */
+  #username.fx-solid { color: var(--accent); }
+
+  #username.fx-gradient {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  #username.fx-neon {
+    color: #fff;
+    text-shadow: 0 0 6px var(--accent), 0 0 18px var(--accent), 0 0 40px var(--accent-2);
+  }
+
+  #username.fx-toon {
+    color: var(--accent);
+    -webkit-text-stroke: 2px #000;
+    paint-order: stroke fill;
+  }
+
+  #username.fx-pop {
+    color: var(--accent);
+    text-shadow: 3px 3px 0 var(--accent-2);
   }
 
   #pronouns {
     font-size: 13px;
     color: var(--text-secondary);
-    margin-top: 2px;
+    margin-top: 3px;
     letter-spacing: 0.02em;
   }
 
   #description {
-    margin-top: 14px;
+    margin-top: 16px;
     font-size: 14.5px;
-    line-height: 1.55;
+    line-height: 1.6;
     color: var(--text-secondary);
     white-space: pre-wrap;
   }
 
   #activity {
-    margin-top: 20px;
+    margin-top: 22px;
     display: none;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
-    border-radius: 12px;
+    padding: 12px 16px;
+    border-radius: 16px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.06);
     text-align: left;
   }
   #activity.show { display: flex; }
-  #activity img { width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0; }
+  #activity img { width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0; }
   #activity-text { min-width: 0; }
   #activity-name { font-size: 13px; font-weight: 600; }
   #activity-detail { font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   #socials {
-    margin-top: 22px;
+    margin-top: 24px;
     display: flex;
     justify-content: center;
-    gap: 14px;
+    gap: 12px;
     flex-wrap: wrap;
   }
 
   .social-link {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -190,13 +237,13 @@
     border: 1px solid rgba(255,255,255,0.08);
     color: var(--icon);
     text-decoration: none;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.25s var(--ease-spring), background 0.2s ease;
   }
-  .social-link:hover { transform: translateY(-3px); background: rgba(255,255,255,0.14); }
+  .social-link:hover { transform: translateY(-4px) scale(1.06); background: rgba(255,255,255,0.14); }
   .social-link svg { width: 18px; height: 18px; fill: currentColor; }
 
   #views {
-    margin-top: 18px;
+    margin-top: 20px;
     font-size: 11px;
     color: var(--text-secondary);
     opacity: 0.6;
@@ -213,18 +260,20 @@
     top: 20px;
     left: 20px;
     z-index: 5;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
     background: rgba(20,20,20,0.6);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.1);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: transform 0.2s var(--ease-spring);
   }
+  #sound-toggle:hover { transform: scale(1.08); }
   #sound-toggle.hidden { display: none; }
 
   #particles {
@@ -250,10 +299,11 @@
 <div id="stage">
   <div id="card">
     <div id="avatar-wrap">
+      <div id="avatar-ring" class="offline"></div>
       <img id="avatar" src="" alt="avatar">
-      <div id="status-dot" class="status-dot offline"></div>
+      <div id="status-badge" class="status-badge offline"></div>
     </div>
-    <div id="username">...</div>
+    <div id="username" class="fx-solid">...</div>
     <div id="pronouns"></div>
     <div id="description"></div>
 
@@ -292,10 +342,12 @@ const FONT_STACKS = {
   'system': "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   'mono': "'JetBrains Mono', 'SF Mono', Menlo, monospace",
   'serif': "'Georgia', 'Times New Roman', serif",
-  'rounded': "'Quicksand', -apple-system, sans-serif"
+  'rounded': "'Quicksand', -apple-system, sans-serif",
+  'medieval': "'UnifrakturMaguntia', 'Old English Text MT', serif"
 };
 
 let particleAnimId = null;
+let lanyardSocket = null;
 
 function hexToRgba(hex, alpha) {
   if (!hex) return `rgba(15,15,18,${alpha})`;
@@ -353,6 +405,7 @@ function applyTheme(cfg) {
   const app = cfg.appearance || {};
 
   r.setProperty('--accent', colors.accent || '#ffffff');
+  r.setProperty('--accent-2', colors.glow || '#7c5cff');
   r.setProperty('--text', colors.text || '#ffffff');
   r.setProperty('--text-secondary', hexToRgba(colors.text || '#ffffff', 0.75));
   r.setProperty('--bg-solid', colors.background || '#0a0a0a');
@@ -363,28 +416,28 @@ function applyTheme(cfg) {
   const cardTint = colors.cardTint || '#0f0f12';
   r.setProperty('--card-bg', hexToRgba(cardTint, (app.cardOpacity ?? 55) / 100));
   r.setProperty('--card-border', hexToRgba(colors.accent || '#ffffff', 0.1));
-  r.setProperty('--card-blur', (app.blurPx ?? 18) + 'px');
-  r.setProperty('--card-radius', (app.cardRadius ?? 20) + 'px');
+  r.setProperty('--card-blur', (app.blurPx ?? 22) + 'px');
+  r.setProperty('--card-radius', (app.cardRadius ?? 28) + 'px');
   r.setProperty('--font-display', FONT_STACKS[app.fontDisplay] || FONT_STACKS['space-grotesk']);
   r.setProperty('--font-body', FONT_STACKS[app.fontBody] || FONT_STACKS['space-grotesk']);
 
   document.getElementById('bg-layer').style.backgroundImage = app.background ? `url('${app.background}')` : 'none';
   document.body.style.cursor = app.cursor ? `url('${app.cursor}'), auto` : 'auto';
 
-  document.getElementById('username').classList.toggle('glow', !!app.usernameGlow);
+  const usernameEl = document.getElementById('username');
+  usernameEl.className = 'fx-' + (app.textEffect || 'solid');
+
   document.getElementById('avatar-wrap').classList.toggle('glow', !!app.avatarGlow);
+  document.getElementById('avatar-wrap').classList.toggle('no-ring', !app.showStatusRing);
   document.getElementById('sound-toggle').classList.toggle('hidden', !app.showSoundToggle);
   document.getElementById('views').classList.toggle('hidden', !app.showViews);
-  document.getElementById('status-dot').classList.toggle('hidden', !cfg.discordId);
+  document.getElementById('status-badge').classList.toggle('hidden', !cfg.discordId || !app.showStatusBadge);
 
   const overlay = document.getElementById('bg-overlay');
   overlay.style.opacity = app.overlayStrength != null ? (app.overlayStrength / 100) : 1;
 
-  if (app.particles) {
-    startParticles(colors.accent);
-  } else {
-    stopParticles();
-  }
+  if (app.particles) startParticles(colors.accent);
+  else stopParticles();
 
   document.title = '@' + (cfg.username || '');
 }
@@ -408,9 +461,7 @@ function renderProfile(cfg) {
     socialsEl.appendChild(a);
   });
 
-  if (cfg.audio) {
-    document.getElementById('bg-audio').src = cfg.audio;
-  }
+  if (cfg.audio) document.getElementById('bg-audio').src = cfg.audio;
 
   const key = 'profile_views_' + (cfg.username || 'default');
   let views = parseInt(localStorage.getItem(key) || '0', 10) + 1;
@@ -422,36 +473,70 @@ function renderProfile(cfg) {
   });
 }
 
-async function loadLanyard(discordId) {
+function applyLanyardData(d, cfg) {
+  const ring = document.getElementById('avatar-ring');
+  const badge = document.getElementById('status-badge');
+  const status = d.discord_status || 'offline';
+  ring.className = status;
+  badge.className = 'status-badge ' + status;
+  if (!cfg.appearance.showStatusRing) ring.classList.add('hidden');
+
+  // auto-fill avatar + username from live Discord data, unless the user set a custom avatar manually
+  if (d.discord_user) {
+    if (cfg.appearance.autoAvatar !== false && d.discord_user.avatar) {
+      document.getElementById('avatar').src =
+        `https://cdn.discordapp.com/avatars/${d.discord_user.id}/${d.discord_user.avatar}.${d.discord_user.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`;
+    }
+    if (cfg.appearance.autoUsername !== false) {
+      document.getElementById('username').textContent = d.discord_user.global_name || d.discord_user.username;
+    }
+  }
+
+  const activity = (d.activities || []).find(a => a.type !== 4) || null;
+  const activityEl = document.getElementById('activity');
+  if (activity) {
+    activityEl.classList.add('show');
+    document.getElementById('activity-name').textContent = activity.name || '';
+    document.getElementById('activity-detail').textContent = activity.details || activity.state || '';
+    let img = '';
+    if (activity.assets?.large_image) {
+      const key = activity.assets.large_image;
+      img = key.startsWith('mp:external')
+        ? 'https://media.discordapp.net/external/' + key.split('/').slice(1).join('/')
+        : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${key}.png`;
+    }
+    document.getElementById('activity-img').src = img;
+    document.getElementById('activity-img').style.display = img ? 'block' : 'none';
+  } else {
+    activityEl.classList.remove('show');
+  }
+}
+
+async function loadLanyard(discordId, cfg) {
   if (!discordId) return;
   try {
     const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
     const json = await res.json();
     if (!json.success) return;
-    const d = json.data;
-
-    const dot = document.getElementById('status-dot');
-    dot.className = 'status-dot ' + (d.discord_status || 'offline');
-
-    const activity = (d.activities || []).find(a => a.type !== 4) || null;
-    const activityEl = document.getElementById('activity');
-    if (activity) {
-      activityEl.classList.add('show');
-      document.getElementById('activity-name').textContent = activity.name || '';
-      document.getElementById('activity-detail').textContent = activity.details || activity.state || '';
-      let img = '';
-      if (activity.assets?.large_image) {
-        const key = activity.assets.large_image;
-        img = key.startsWith('mp:external')
-          ? 'https://media.discordapp.net/external/' + key.split('/').slice(1).join('/')
-          : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${key}.png`;
-      }
-      document.getElementById('activity-img').src = img;
-      document.getElementById('activity-img').style.display = img ? 'block' : 'none';
-    }
+    applyLanyardData(json.data, cfg);
   } catch (e) {
     console.warn('Lanyard fetch failed', e);
   }
+
+  // live updates via websocket so status/activity change without a page refresh
+  try {
+    if (lanyardSocket) lanyardSocket.close();
+    lanyardSocket = new WebSocket('wss://api.lanyard.rest/socket');
+    lanyardSocket.onopen = () => {
+      lanyardSocket.send(JSON.stringify({ op: 2, d: { subscribe_to_id: discordId } }));
+    };
+    lanyardSocket.onmessage = (ev) => {
+      const msg = JSON.parse(ev.data);
+      if (msg.op === 0 && (msg.t === 'INIT_STATE' || msg.t === 'PRESENCE_UPDATE')) {
+        applyLanyardData(msg.d, cfg);
+      }
+    };
+  } catch (e) { console.warn('Lanyard socket failed', e); }
 }
 
 async function init() {
@@ -460,15 +545,14 @@ async function init() {
     const cfg = await res.json();
     applyTheme(cfg);
     renderProfile(cfg);
-    if (cfg.discordId) loadLanyard(cfg.discordId);
+    if (cfg.discordId) loadLanyard(cfg.discordId, cfg);
   } catch (e) {
     document.getElementById('username').textContent = 'profile.json not found';
     console.error(e);
   }
 }
 
-// live preview: accept full profile pushes from admin.html — always applies the WHOLE state,
-// so every field (avatar, bg, colors...) is always present, nothing gets wiped by a partial update
+// live preview: accept full profile pushes from admin.html
 window.addEventListener('message', (e) => {
   if (e.data?.type === 'preview-update' && e.data.profile) {
     document.getElementById('card').classList.add('no-anim');
