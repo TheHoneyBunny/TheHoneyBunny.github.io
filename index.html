@@ -407,6 +407,8 @@ function applyTheme(cfg) {
 }
 
 function renderProfile(cfg) {
+  // always render the manually-set avatar first — Discord auto-sync (if enabled) will
+  // overwrite this later only once real Lanyard data actually arrives, never before
   document.getElementById('avatar').src = cfg.avatar || '';
   document.getElementById('username').textContent = cfg.displayName || cfg.username || '...';
   document.getElementById('pronouns').textContent = cfg.pronouns || '';
@@ -427,17 +429,25 @@ function renderProfile(cfg) {
   requestAnimationFrame(() => { document.getElementById('card').classList.add('in'); });
 }
 
-// real global view counter via CountAPI (no signup required). If the service
-// is ever unreachable, we fail quietly and show a dash instead of a broken UI.
+// Real global view counter via CountAPI (no signup required), but counted only once per
+// browser/device — a localStorage flag prevents your own refreshes (or repeat visits from
+// the same device) from inflating the number. Clearing browser data resets that device's flag.
 async function loadViewCount(username) {
   const el = document.getElementById('view-count');
   if (!username) { el.textContent = '—'; return; }
+  const key = 'discordbio_' + username.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+  const seenFlag = 'discordbio_seen_' + key;
+  const alreadyCounted = localStorage.getItem(seenFlag) === '1';
+
   try {
-    const key = 'discordbio_' + username.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
-    const res = await fetch(`https://countapi.mileshilliard.com/api/v1/hit/${key}`);
+    const endpoint = alreadyCounted
+      ? `https://countapi.mileshilliard.com/api/v1/get/${key}`   // just read, don't increment again
+      : `https://countapi.mileshilliard.com/api/v1/hit/${key}`;  // first time this device visits: increment
+    const res = await fetch(endpoint);
     if (!res.ok) throw new Error('bad response');
     const json = await res.json();
     el.textContent = (json.value ?? json.count ?? '—').toString();
+    if (!alreadyCounted) localStorage.setItem(seenFlag, '1');
   } catch (e) {
     el.textContent = '—';
   }
@@ -499,8 +509,12 @@ async function loadLanyard(discordId, cfg) {
   try {
     const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
     const json = await res.json();
-    if (json.success) applyLanyardData(json.data, cfg);
-  } catch (e) { console.warn('Lanyard fetch failed', e); }
+    if (json.success) {
+      applyLanyardData(json.data, cfg);
+    } else {
+      console.warn('Lanyard: no data for this ID. Common causes: (1) ID is wrong, (2) you are not currently in the Lanyard Discord server (discord.gg/lanyard), or (3) you left after joining. Response:', json);
+    }
+  } catch (e) { console.warn('Lanyard fetch failed — network or CORS issue', e); }
 
   try {
     if (lanyardSocket) lanyardSocket.close();
@@ -508,7 +522,14 @@ async function loadLanyard(discordId, cfg) {
     lanyardSocket.onopen = () => lanyardSocket.send(JSON.stringify({ op: 2, d: { subscribe_to_id: discordId } }));
     lanyardSocket.onmessage = (ev) => {
       const msg = JSON.parse(ev.data);
-      if (msg.op === 0 && (msg.t === 'INIT_STATE' || msg.t === 'PRESENCE_UPDATE')) applyLanyardData(msg.d, cfg);
+      if (msg.op === 0 && msg.t === 'INIT_STATE') {
+        // INIT_STATE for a single subscribed ID still wraps the payload as { "<id>": {...} }
+        const presence = msg.d[discordId] || msg.d;
+        applyLanyardData(presence, cfg);
+      }
+      if (msg.op === 0 && msg.t === 'PRESENCE_UPDATE') {
+        applyLanyardData(msg.d, cfg);
+      }
     };
   } catch (e) { console.warn('Lanyard socket failed', e); }
 }
