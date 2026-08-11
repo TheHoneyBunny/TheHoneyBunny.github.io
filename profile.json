@@ -1,10 +1,10 @@
 {
   "username": "miguel.sandiego",
   "displayName": "miguel.sandiego",
-  "pronouns": "🍰",
+  "pronouns": "he/him",
   "description": "𝓓𝓸 𝔂𝓸𝓾 𝓽𝓱𝓲𝓷𝓴 𝓼𝓸𝓶𝓮𝓱𝓸𝔀 𝔂𝓸𝓾’𝓿𝓮 𝓫𝓮𝓮𝓷 𝓬𝓱𝓸𝓼𝓮𝓷 𝓫𝔂 𝓰𝓸𝓭 𝓳𝓾𝓼𝓽 𝓫𝓮𝓬𝓪𝓾𝓼𝓮 𝔂𝓸𝓾’𝓻𝓮 𝓪 𝓷𝓸𝓫𝓵𝓮 𝓶𝓪𝓷?",
   "discordId": "1357221629708599417",
-  "avatar": "assets/1786384440863.jpeg",
+  "avatar": "",
   "audio": "",
   "socials": [
     {
@@ -33,6 +33,8 @@
     "blurPx": 2,
     "cardRadius": 40,
     "iconRadius": 20,
+    "cardWidth": 420,
+    "cardHeight": 0,
     "overlayStrength": 55,
     "avatarGlow": true,
     "particles": true,
@@ -41,6 +43,8 @@
     "showViews": true,
     "fontDisplay": "space-grotesk",
     "fontBody": "space-grotesk",
+    "fontDescription": "space-grotesk",
+    "descriptionSize": 16.5,
     "textEffect": "gradient",
     "autoAvatar": true,
     "autoUsername": true,
