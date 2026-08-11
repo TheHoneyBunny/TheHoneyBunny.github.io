@@ -198,6 +198,10 @@
       <input type="text" id="f-pronouns" placeholder="np. on/jego">
       <label>Opis</label>
       <textarea id="f-description"></textarea>
+      <label>Font opisu</label>
+      <div class="grid-2" id="desc-font-picker"></div>
+      <label>Rozmiar tekstu opisu</label>
+      <div class="slider-row"><input type="range" id="f-descriptionSize" min="10" max="24" value="14.5" step="0.5"><span class="slider-val" id="f-descriptionSize-val">14.5px</span></div>
     </div>
   </details>
 
@@ -281,6 +285,10 @@
   <details class="section">
     <summary class="section-title">Karta i efekty</summary>
     <div class="section-body">
+      <label>Szerokość karty</label>
+      <div class="slider-row"><input type="range" id="f-cardWidth" min="280" max="640" value="420"><span class="slider-val" id="f-cardWidth-val">420px</span></div>
+      <label>Wysokość karty (0 = automatyczna)</label>
+      <div class="slider-row"><input type="range" id="f-cardHeight" min="0" max="800" value="0"><span class="slider-val" id="f-cardHeight-val">auto</span></div>
       <label>Przezroczystość karty</label>
       <div class="slider-row"><input type="range" id="f-cardOpacity" min="0" max="100" value="55"><span class="slider-val" id="f-cardOpacity-val">55%</span></div>
       <label>Rozmycie karty</label>
@@ -381,9 +389,10 @@ function defaultProfile() {
     colors: { accent: '#ffffff', text: '#ffffff', background: '#0a0a0a', cardTint: '#0f0f12', icon: '#ffffff', glow: '#7c5cff' },
     appearance: {
       background: '', backgroundVideo: '', backgroundType: 'image', cursor: '',
-      cardOpacity: 55, blurPx: 22, cardRadius: 28, iconRadius: 13,
+      cardOpacity: 55, blurPx: 22, cardRadius: 28, iconRadius: 13, cardWidth: 420, cardHeight: 0,
       overlayStrength: 100, avatarGlow: false, particles: false, grain: true,
       showSoundToggle: true, showViews: true, fontDisplay: 'space-grotesk', fontBody: 'space-grotesk',
+      fontDescription: 'space-grotesk', descriptionSize: 14.5,
       textEffect: 'solid',
       autoAvatar: true, autoUsername: true, showStatusRing: true, showStatusBadge: true, showAvatarDecoration: true,
       decorationPresetUrl: ''
@@ -480,6 +489,33 @@ function updateFontActive() {
   });
 }
 
+function renderDescFontPicker() {
+  const wrap = $('desc-font-picker');
+  wrap.innerHTML = '';
+  FONT_OPTIONS.forEach(f => {
+    const el = document.createElement('div');
+    el.className = 'pick-tile font-preview';
+    el.style.fontFamily = f.stack;
+    el.style.fontSize = '13px';
+    el.style.fontWeight = '400';
+    el.textContent = f.label;
+    el.title = f.label;
+    el.dataset.font = f.id;
+    el.addEventListener('click', () => {
+      state.appearance.fontDescription = f.id;
+      renderDescFontPicker();
+      commit();
+    });
+    wrap.appendChild(el);
+  });
+  updateDescFontActive();
+}
+function updateDescFontActive() {
+  document.querySelectorAll('#desc-font-picker .pick-tile').forEach(el => {
+    el.classList.toggle('active', el.dataset.font === state.appearance.fontDescription);
+  });
+}
+
 function renderDecorationPicker() {
   const wrap = $('decoration-picker');
   wrap.innerHTML = '';
@@ -487,8 +523,14 @@ function renderDecorationPicker() {
   const noneEl = document.createElement('div');
   noneEl.className = 'pick-tile deco-tile none-tile';
   noneEl.textContent = 'Brak';
-  noneEl.dataset.asset = '';
-  noneEl.addEventListener('click', () => { state.appearance.decorationPresetUrl = ''; renderDecorationPicker(); commit(); });
+  noneEl.dataset.asset = '__none__';
+  noneEl.addEventListener('click', () => {
+    state.appearance.decorationPresetUrl = '';
+    state.appearance.showAvatarDecoration = false; // "Brak" now fully disables decoration, instead of falling back to Discord's own
+    $('f-showAvatarDecoration').classList.remove('on');
+    renderDecorationPicker();
+    commit();
+  });
   wrap.appendChild(noneEl);
 
   DECORATION_PRESETS.forEach(d => {
@@ -497,13 +539,19 @@ function renderDecorationPicker() {
     el.className = 'pick-tile deco-tile';
     el.dataset.asset = url;
     el.innerHTML = `<img src="${url}" loading="lazy" alt=""><span>${d.label}</span>`;
-    el.addEventListener('click', () => { state.appearance.decorationPresetUrl = url; renderDecorationPicker(); commit(); });
+    el.addEventListener('click', () => {
+      state.appearance.decorationPresetUrl = url;
+      state.appearance.showAvatarDecoration = true;
+      $('f-showAvatarDecoration').classList.add('on');
+      renderDecorationPicker();
+      commit();
+    });
     wrap.appendChild(el);
   });
   updateDecorationActive();
 }
 function updateDecorationActive() {
-  const current = state.appearance.decorationPresetUrl || '';
+  const current = state.appearance.showAvatarDecoration ? (state.appearance.decorationPresetUrl || '') : '__none__';
   document.querySelectorAll('#decoration-picker .pick-tile').forEach(el => {
     el.classList.toggle('active', el.dataset.asset === current);
   });
@@ -531,6 +579,12 @@ function loadFormFromState() {
   $('f-overlayStrength-val').textContent = state.appearance.overlayStrength + '%';
   $('f-iconRadius').value = state.appearance.iconRadius;
   $('f-iconRadius-val').textContent = state.appearance.iconRadius + 'px';
+  $('f-cardWidth').value = state.appearance.cardWidth;
+  $('f-cardWidth-val').textContent = state.appearance.cardWidth + 'px';
+  $('f-cardHeight').value = state.appearance.cardHeight;
+  $('f-cardHeight-val').textContent = state.appearance.cardHeight ? state.appearance.cardHeight + 'px' : 'auto';
+  $('f-descriptionSize').value = state.appearance.descriptionSize;
+  $('f-descriptionSize-val').textContent = state.appearance.descriptionSize + 'px';
 
   $('f-avatarGlow').classList.toggle('on', !!state.appearance.avatarGlow);
   $('f-particles').classList.toggle('on', !!state.appearance.particles);
@@ -552,6 +606,7 @@ function loadFormFromState() {
   updateBgTypeUI();
   updateFxActive();
   renderFontPicker();
+  renderDescFontPicker();
   renderDecorationPicker();
   renderSocials();
 }
@@ -644,6 +699,19 @@ bindSlider('f-blurPx', 'blurPx', 'px');
 bindSlider('f-cardRadius', 'cardRadius', 'px');
 bindSlider('f-overlayStrength', 'overlayStrength', '%');
 bindSlider('f-iconRadius', 'iconRadius', 'px');
+bindSlider('f-cardWidth', 'cardWidth', 'px');
+$('f-cardHeight').addEventListener('input', () => {
+  const v = parseInt($('f-cardHeight').value, 10);
+  state.appearance.cardHeight = v;
+  $('f-cardHeight-val').textContent = v ? v + 'px' : 'auto';
+  commit();
+});
+$('f-descriptionSize').addEventListener('input', () => {
+  const v = parseFloat($('f-descriptionSize').value);
+  state.appearance.descriptionSize = v;
+  $('f-descriptionSize-val').textContent = v + 'px';
+  commit();
+});
 
 function bindToggle(id, path) {
   $(id).addEventListener('click', () => {
