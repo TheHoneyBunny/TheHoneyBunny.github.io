@@ -451,14 +451,17 @@ function applyTheme(cfg) {
   document.getElementById('views').classList.toggle('hidden', !app.showViews);
   document.getElementById('status-badge').classList.toggle('hidden', !cfg.discordId || !app.showStatusBadge);
 
-  // avatar decoration: manual preset works standalone; the live Discord one needs discordId + Lanyard data (handled in applyLanyardData)
+  // avatar decoration: manual preset works standalone even without a discordId.
+  // showAvatarDecoration=false always wins here too — no fallback path can override it.
   const decoWrap = document.getElementById('avatar-decoration');
-  if (app.showAvatarDecoration && app.decorationPresetUrl) {
+  if (app.showAvatarDecoration === false) {
+    setDecorationVisible(false);
+  } else if (app.decorationPresetUrl) {
     decoWrap.querySelector('img').src = app.decorationPresetUrl;
     setDecorationVisible(true);
-  } else if (!cfg.discordId) {
-    setDecorationVisible(false);
   }
+  // if showAvatarDecoration is true but there's no manual preset and no discordId yet,
+  // leave it as-is — applyLanyardData will decide once real Discord data arrives
 
   document.getElementById('bg-overlay').style.opacity = app.overlayStrength != null ? (app.overlayStrength / 100) : 1;
 
@@ -530,23 +533,29 @@ function applyLanyardData(d, cfg) {
 
   if (d.discord_user) {
     const u = d.discord_user;
+
+    // avatar: fully independent of decoration state below
     if (cfg.appearance.autoAvatar !== false && u.avatar) {
       const avatarUrl = `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`;
       const avatarEl = document.getElementById('avatar');
-      avatarEl.onerror = () => showDiagnostic('BŁĄD ładowania avatara z URL: ' + avatarUrl + ' (obrazek nie odpowiedział poprawnie — sprawdź URL ręcznie w nowej karcie)');
+      avatarEl.onerror = () => showDiagnostic('BŁĄD ładowania avatara z URL: ' + avatarUrl);
       avatarEl.onload = () => showDiagnostic('Avatar załadowany OK: ' + avatarUrl);
       avatarEl.src = avatarUrl;
     }
     if (cfg.appearance.autoUsername !== false) {
       document.getElementById('username').textContent = u.global_name || u.username;
     }
-    // real Discord avatar decoration (the animated frame around the pfp — leaves, effects, etc.)
+
+    // decoration: fully independent of avatar above — showAvatarDecoration=false always
+    // wins and hides it, regardless of what Lanyard sends for avatar_decoration_data
     const decoWrap = document.getElementById('avatar-decoration');
-    const manualPreset = cfg.appearance.decorationPresetUrl;
-    if (cfg.appearance.showAvatarDecoration && manualPreset) {
-      decoWrap.querySelector('img').src = manualPreset;
+    if (cfg.appearance.showAvatarDecoration === false) {
+      showDiagnostic('Dekoracja wyłączona w panelu (showAvatarDecoration=false) — chowam.');
+      setDecorationVisible(false);
+    } else if (cfg.appearance.decorationPresetUrl) {
+      decoWrap.querySelector('img').src = cfg.appearance.decorationPresetUrl;
       setDecorationVisible(true);
-    } else if (cfg.appearance.showAvatarDecoration && u.avatar_decoration_data?.asset) {
+    } else if (u.avatar_decoration_data?.asset) {
       decoWrap.querySelector('img').src = `https://cdn.discordapp.com/avatar-decoration-presets/${u.avatar_decoration_data.asset}.png`;
       setDecorationVisible(true);
     } else {
