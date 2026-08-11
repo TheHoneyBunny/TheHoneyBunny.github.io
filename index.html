@@ -139,13 +139,25 @@
 
   #avatar-decoration {
     position: absolute;
-    inset: -18%;
+    inset: 0;
     pointer-events: none;
     display: none;
     z-index: 3;
   }
   #avatar-decoration.show { display: block; }
-  #avatar-decoration img { width: 100%; height: 100%; }
+  #avatar-decoration img { width: 100%; height: 100%; object-fit: contain; }
+
+  /* when a decoration is showing, shrink the actual avatar photo so the decoration's
+     transparent ring always has real empty space to sit in — this works even if a
+     specific decoration PNG doesn't have a perfectly transparent center */
+  #avatar-wrap.has-decoration #avatar-ring,
+  #avatar-wrap.has-decoration #avatar {
+    position: absolute;
+    inset: 12%;
+    width: 76%;
+    height: 76%;
+  }
+  #avatar-wrap.has-decoration #avatar-ring { inset: 10%; width: 80%; height: 80%; }
 
   #avatar-wrap.no-ring #avatar { border: 3px solid rgba(255,255,255,0.15); }
   #avatar-wrap.no-ring #avatar-ring { display: none; }
@@ -339,6 +351,11 @@ const FONT_STACKS = {
 let particleAnimId = null;
 let lanyardSocket = null;
 
+function setDecorationVisible(visible) {
+  document.getElementById('avatar-decoration').classList.toggle('show', visible);
+  document.getElementById('avatar-wrap').classList.toggle('has-decoration', visible);
+}
+
 function hexToRgba(hex, alpha) {
   if (!hex) return `rgba(15,15,18,${alpha})`;
   const h = hex.replace('#', '');
@@ -438,9 +455,9 @@ function applyTheme(cfg) {
   const decoWrap = document.getElementById('avatar-decoration');
   if (app.showAvatarDecoration && app.decorationPresetUrl) {
     decoWrap.querySelector('img').src = app.decorationPresetUrl;
-    decoWrap.classList.add('show');
+    setDecorationVisible(true);
   } else if (!cfg.discordId) {
-    decoWrap.classList.remove('show');
+    setDecorationVisible(false);
   }
 
   document.getElementById('bg-overlay').style.opacity = app.overlayStrength != null ? (app.overlayStrength / 100) : 1;
@@ -528,12 +545,12 @@ function applyLanyardData(d, cfg) {
     const manualPreset = cfg.appearance.decorationPresetUrl;
     if (cfg.appearance.showAvatarDecoration && manualPreset) {
       decoWrap.querySelector('img').src = manualPreset;
-      decoWrap.classList.add('show');
+      setDecorationVisible(true);
     } else if (cfg.appearance.showAvatarDecoration && u.avatar_decoration_data?.asset) {
       decoWrap.querySelector('img').src = `https://cdn.discordapp.com/avatar-decoration-presets/${u.avatar_decoration_data.asset}.png`;
-      decoWrap.classList.add('show');
+      setDecorationVisible(true);
     } else {
-      decoWrap.classList.remove('show');
+      setDecorationVisible(false);
     }
   }
 
@@ -640,26 +657,39 @@ const bgAudio = document.getElementById('bg-audio');
 const eqBars = document.getElementById('eq-bars');
 
 bgAudio.volume = 0.5;
+bgAudio.muted = false; // starts unmuted — will autoplay once the browser allows it (see below)
 
 function updateSoundUI(isPlaying) {
   eqBars.style.display = isPlaying ? 'flex' : 'none';
   document.getElementById('icon-muted').style.display = isPlaying ? 'none' : 'block';
 }
 
+// clicking the speaker toggles mute, not play/pause — matches "starts unmuted, click silences it"
 soundBtn.addEventListener('click', () => {
-  if (bgAudio.paused) {
-    bgAudio.play().then(() => updateSoundUI(true)).catch(() => {});
-  } else {
-    bgAudio.pause();
-    updateSoundUI(false);
-  }
+  bgAudio.muted = !bgAudio.muted;
+  updateSoundUI(!bgAudio.muted && !bgAudio.paused);
 });
 
 volumeSlider.addEventListener('input', () => {
   bgAudio.volume = volumeSlider.value / 100;
-  if (bgAudio.volume === 0 && !bgAudio.paused) { bgAudio.pause(); updateSoundUI(false); }
-  else if (bgAudio.volume > 0 && bgAudio.paused) { bgAudio.play().then(() => updateSoundUI(true)).catch(() => {}); }
+  bgAudio.muted = bgAudio.volume === 0;
+  updateSoundUI(!bgAudio.muted && !bgAudio.paused);
 });
+
+// Browsers block audio autoplay with sound until the user interacts with the page at all
+// (this is a browser policy, not something a website can override). We start playback on
+// the very first click/keypress/touch anywhere on the page, so it feels automatic in practice.
+function tryAutoplayOnce() {
+  if (bgAudio.src && bgAudio.paused) {
+    bgAudio.play().then(() => updateSoundUI(!bgAudio.muted)).catch(() => {});
+  }
+  document.removeEventListener('click', tryAutoplayOnce);
+  document.removeEventListener('keydown', tryAutoplayOnce);
+  document.removeEventListener('touchstart', tryAutoplayOnce);
+}
+document.addEventListener('click', tryAutoplayOnce);
+document.addEventListener('keydown', tryAutoplayOnce);
+document.addEventListener('touchstart', tryAutoplayOnce);
 
 window.addEventListener('resize', () => {
   const canvas = document.getElementById('particles');
