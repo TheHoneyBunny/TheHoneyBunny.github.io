@@ -238,6 +238,7 @@
   }
   #sound-toggle:hover, #sound-toggle:focus-within { width: 160px; }
   #sound-toggle.hidden { display: none; }
+  #sound-toggle.no-audio { opacity: 0.4; pointer-events: none; }
 
   #sound-btn {
     width: 42px; height: 42px; min-width: 42px; border-radius: 50%; border: none; background: transparent; color: #fff;
@@ -468,7 +469,12 @@ function renderProfile(cfg) {
     socialsEl.appendChild(a);
   });
 
-  if (cfg.audio) document.getElementById('bg-audio').src = cfg.audio;
+  if (cfg.audio) {
+    document.getElementById('bg-audio').src = cfg.audio;
+    document.getElementById('sound-toggle').classList.remove('no-audio');
+  } else {
+    document.getElementById('sound-toggle').classList.add('no-audio');
+  }
 
   requestAnimationFrame(() => { document.getElementById('card').classList.add('in'); });
 }
@@ -508,8 +514,11 @@ function applyLanyardData(d, cfg) {
   if (d.discord_user) {
     const u = d.discord_user;
     if (cfg.appearance.autoAvatar !== false && u.avatar) {
-      document.getElementById('avatar').src =
-        `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`;
+      const avatarUrl = `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`;
+      const avatarEl = document.getElementById('avatar');
+      avatarEl.onerror = () => showDiagnostic('BŁĄD ładowania avatara z URL: ' + avatarUrl + ' (obrazek nie odpowiedział poprawnie — sprawdź URL ręcznie w nowej karcie)');
+      avatarEl.onload = () => showDiagnostic('Avatar załadowany OK: ' + avatarUrl);
+      avatarEl.src = avatarUrl;
     }
     if (cfg.appearance.autoUsername !== false) {
       document.getElementById('username').textContent = u.global_name || u.username;
