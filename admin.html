@@ -80,6 +80,11 @@
 
   .slider-row { display: flex; align-items: center; gap: 10px; }
   input[type=range] { flex: 1; accent-color: var(--accent); }
+  input.slider-num {
+    width: 58px; flex-shrink: 0; background: #0d0d0f; border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 8px; color: var(--text); font-size: 12.5px; font-family: inherit; text-align: right;
+  }
+  input.slider-num:focus { outline: none; border-color: var(--accent); }
   .slider-val { font-size: 12px; color: var(--muted); width: 46px; text-align: right; flex-shrink: 0; }
 
   .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; gap: 12px; }
@@ -201,7 +206,7 @@
       <label>Font opisu</label>
       <div class="grid-2" id="desc-font-picker"></div>
       <label>Rozmiar tekstu opisu</label>
-      <div class="slider-row"><input type="range" id="f-descriptionSize" min="10" max="24" value="14.5" step="0.5"><span class="slider-val" id="f-descriptionSize-val">14.5px</span></div>
+      <div class="slider-row"><input type="range" id="f-descriptionSize" min="10" max="24" value="14.5" step="0.5"><input type="number" class="slider-num" id="f-descriptionSize-val"></div>
     </div>
   </details>
 
@@ -286,19 +291,19 @@
     <summary class="section-title">Karta i efekty</summary>
     <div class="section-body">
       <label>Szerokość karty</label>
-      <div class="slider-row"><input type="range" id="f-cardWidth" min="280" max="640" value="420"><span class="slider-val" id="f-cardWidth-val">420px</span></div>
+      <div class="slider-row"><input type="range" id="f-cardWidth" min="280" max="640" value="420"><input type="number" class="slider-num" id="f-cardWidth-val"></div>
       <label>Wysokość karty (0 = automatyczna)</label>
-      <div class="slider-row"><input type="range" id="f-cardHeight" min="0" max="800" value="0"><span class="slider-val" id="f-cardHeight-val">auto</span></div>
+      <div class="slider-row"><input type="range" id="f-cardHeight" min="0" max="800" value="0"><input type="number" class="slider-num" id="f-cardHeight-val"></div>
       <label>Przezroczystość karty</label>
-      <div class="slider-row"><input type="range" id="f-cardOpacity" min="0" max="100" value="55"><span class="slider-val" id="f-cardOpacity-val">55%</span></div>
+      <div class="slider-row"><input type="range" id="f-cardOpacity" min="0" max="100" value="55"><input type="number" class="slider-num" id="f-cardOpacity-val"></div>
       <label>Rozmycie karty</label>
-      <div class="slider-row"><input type="range" id="f-blurPx" min="0" max="60" value="22"><span class="slider-val" id="f-blurPx-val">22px</span></div>
+      <div class="slider-row"><input type="range" id="f-blurPx" min="0" max="60" value="22"><input type="number" class="slider-num" id="f-blurPx-val"></div>
       <label>Zaokrąglenie rogów karty</label>
-      <div class="slider-row"><input type="range" id="f-cardRadius" min="0" max="44" value="28"><span class="slider-val" id="f-cardRadius-val">28px</span></div>
+      <div class="slider-row"><input type="range" id="f-cardRadius" min="0" max="44" value="28"><input type="number" class="slider-num" id="f-cardRadius-val"></div>
       <label>Ciemność nakładki na tło</label>
-      <div class="slider-row"><input type="range" id="f-overlayStrength" min="0" max="100" value="100"><span class="slider-val" id="f-overlayStrength-val">100%</span></div>
+      <div class="slider-row"><input type="range" id="f-overlayStrength" min="0" max="100" value="100"><input type="number" class="slider-num" id="f-overlayStrength-val"></div>
       <label>Zaokrąglenie ikon social</label>
-      <div class="slider-row"><input type="range" id="f-iconRadius" min="0" max="20" value="13"><span class="slider-val" id="f-iconRadius-val">13px</span></div>
+      <div class="slider-row"><input type="range" id="f-iconRadius" min="0" max="20" value="13"><input type="number" class="slider-num" id="f-iconRadius-val"></div>
 
       <div class="toggle-row"><span>Poświata wokół avatara</span><div class="toggle" id="f-avatarGlow"></div></div>
       <div class="toggle-row"><span>Unoszące się cząsteczki w tle</span><div class="toggle" id="f-particles"></div></div>
@@ -570,21 +575,21 @@ function loadFormFromState() {
   }
 
   $('f-cardOpacity').value = state.appearance.cardOpacity;
-  $('f-cardOpacity-val').textContent = state.appearance.cardOpacity + '%';
+  $('f-cardOpacity-val').value = state.appearance.cardOpacity;
   $('f-blurPx').value = state.appearance.blurPx;
-  $('f-blurPx-val').textContent = state.appearance.blurPx + 'px';
+  $('f-blurPx-val').value = state.appearance.blurPx;
   $('f-cardRadius').value = state.appearance.cardRadius;
-  $('f-cardRadius-val').textContent = state.appearance.cardRadius + 'px';
+  $('f-cardRadius-val').value = state.appearance.cardRadius;
   $('f-overlayStrength').value = state.appearance.overlayStrength;
-  $('f-overlayStrength-val').textContent = state.appearance.overlayStrength + '%';
+  $('f-overlayStrength-val').value = state.appearance.overlayStrength;
   $('f-iconRadius').value = state.appearance.iconRadius;
-  $('f-iconRadius-val').textContent = state.appearance.iconRadius + 'px';
+  $('f-iconRadius-val').value = state.appearance.iconRadius;
   $('f-cardWidth').value = state.appearance.cardWidth;
-  $('f-cardWidth-val').textContent = state.appearance.cardWidth + 'px';
+  $('f-cardWidth-val').value = state.appearance.cardWidth;
   $('f-cardHeight').value = state.appearance.cardHeight;
-  $('f-cardHeight-val').textContent = state.appearance.cardHeight ? state.appearance.cardHeight + 'px' : 'auto';
+  $('f-cardHeight-val').value = state.appearance.cardHeight;
   $('f-descriptionSize').value = state.appearance.descriptionSize;
-  $('f-descriptionSize-val').textContent = state.appearance.descriptionSize + 'px';
+  $('f-descriptionSize-val').value = state.appearance.descriptionSize;
 
   $('f-avatarGlow').classList.toggle('on', !!state.appearance.avatarGlow);
   $('f-particles').classList.toggle('on', !!state.appearance.particles);
@@ -687,11 +692,23 @@ function bindSimple(id, path) {
 });
 
 function bindSlider(id, path, suffix) {
-  $(id).addEventListener('input', () => {
-    const v = parseInt($(id).value, 10);
+  const range = $(id);
+  const num = $(id + '-val');
+  // mirror the range input's constraints onto the number field so typed values stay valid
+  num.min = range.min; num.max = range.max; num.step = range.step || 1;
+  num.value = range.value;
+
+  function update(v) {
+    v = Math.max(parseFloat(range.min), Math.min(parseFloat(range.max), v));
+    range.value = v;
+    num.value = v;
     state.appearance[path] = v;
-    $(id + '-val').textContent = v + suffix;
     commit();
+  }
+  range.addEventListener('input', () => update(parseFloat(range.value)));
+  num.addEventListener('input', () => {
+    const v = parseFloat(num.value);
+    if (!isNaN(v)) update(v);
   });
 }
 bindSlider('f-cardOpacity', 'cardOpacity', '%');
@@ -700,18 +717,8 @@ bindSlider('f-cardRadius', 'cardRadius', 'px');
 bindSlider('f-overlayStrength', 'overlayStrength', '%');
 bindSlider('f-iconRadius', 'iconRadius', 'px');
 bindSlider('f-cardWidth', 'cardWidth', 'px');
-$('f-cardHeight').addEventListener('input', () => {
-  const v = parseInt($('f-cardHeight').value, 10);
-  state.appearance.cardHeight = v;
-  $('f-cardHeight-val').textContent = v ? v + 'px' : 'auto';
-  commit();
-});
-$('f-descriptionSize').addEventListener('input', () => {
-  const v = parseFloat($('f-descriptionSize').value);
-  state.appearance.descriptionSize = v;
-  $('f-descriptionSize-val').textContent = v + 'px';
-  commit();
-});
+bindSlider('f-cardHeight', 'cardHeight', 'px');
+bindSlider('f-descriptionSize', 'descriptionSize', 'px');
 
 function bindToggle(id, path) {
   $(id).addEventListener('click', () => {

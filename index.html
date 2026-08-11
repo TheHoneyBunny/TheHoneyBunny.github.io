@@ -229,34 +229,33 @@
 
   #sound-toggle {
     position: fixed; top: 20px; left: 20px; z-index: 5;
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(20,20,20,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 21px; padding: 0 4px; height: 42px; overflow: hidden;
-    transition: width 0.3s var(--ease-smooth);
+    display: flex; align-items: center;
+    background: rgba(20,20,20,0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 21px; height: 42px;
+    transition: width 0.25s var(--ease-smooth);
     width: 42px;
+    overflow: hidden;
   }
-  #sound-toggle:hover, #sound-toggle.expanded { width: 150px; }
+  #sound-toggle:hover, #sound-toggle:focus-within { width: 160px; }
   #sound-toggle.hidden { display: none; }
 
   #sound-btn {
-    width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent; color: #fff;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
-    transition: transform 0.2s var(--ease-spring);
+    width: 42px; height: 42px; min-width: 42px; border-radius: 50%; border: none; background: transparent; color: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0;
   }
-  #sound-btn:hover { transform: scale(1.1); }
-  #sound-btn svg { width: 18px; height: 18px; }
+  #sound-btn svg { width: 18px; height: 18px; pointer-events: none; }
 
   #volume-slider {
-    flex: 1; height: 4px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.2);
-    border-radius: 2px; outline: none; margin-right: 12px; cursor: pointer;
+    width: 100px; height: 4px; -webkit-appearance: none; appearance: none; background: rgba(255,255,255,0.25);
+    border-radius: 2px; outline: none; margin-right: 16px; cursor: pointer; flex-shrink: 0;
   }
   #volume-slider::-webkit-slider-thumb {
     -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; cursor: pointer;
   }
   #volume-slider::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #fff; border: none; cursor: pointer; }
 
-  .eq-bars { display: flex; align-items: center; gap: 2px; width: 14px; height: 14px; }
-  .eq-bars span { width: 3px; background: #fff; border-radius: 1px; animation: eq 0.8s ease-in-out infinite; }
+  .eq-bars { display: flex; align-items: center; justify-content: center; gap: 2px; width: 14px; height: 14px; }
+  .eq-bars span { width: 3px; background: #fff; border-radius: 1px; animation: eq 0.8s ease-in-out infinite; display: block; }
   .eq-bars span:nth-child(1) { height: 40%; animation-delay: -0.6s; }
   .eq-bars span:nth-child(2) { height: 100%; animation-delay: -0.3s; }
   .eq-bars span:nth-child(3) { height: 65%; animation-delay: 0s; }
@@ -278,7 +277,6 @@
 <div id="sound-toggle">
   <button id="sound-btn" title="Dźwięk" aria-label="Toggle sound">
     <svg id="icon-muted" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-    <svg id="icon-playing" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
     <div class="eq-bars" id="eq-bars" style="display:none;"><span></span><span></span><span></span></div>
   </button>
   <input type="range" id="volume-slider" min="0" max="100" value="50">
@@ -552,16 +550,18 @@ function applyLanyardData(d, cfg) {
 
 async function loadLanyard(discordId, cfg) {
   if (!discordId) return;
+  showDiagnostic(`Łączenie z Lanyard dla ID ${discordId}...`);
   try {
     const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
     const json = await res.json();
     if (json.success) {
+      showDiagnostic(`Lanyard OK. Status: ${json.data.discord_status}. Avatar hash: ${json.data.discord_user?.avatar || '(brak)'}. autoAvatar: ${cfg.appearance.autoAvatar}`);
       applyLanyardData(json.data, cfg);
     } else {
-      showDiagnostic('Discord auto-sync nie działa: ' + (json.error?.message || 'nie znaleziono danych dla tego ID. Sprawdź czy dołączyłeś do discord.gg/lanyard i że Discord ID w panelu jest poprawne.'));
+      showDiagnostic('Lanyard: BŁĄD — ' + (json.error?.message || 'nie znaleziono danych dla tego ID. Sprawdź czy dołączyłeś do discord.gg/lanyard.'));
     }
   } catch (e) {
-    showDiagnostic('Discord auto-sync: błąd sieci przy łączeniu z Lanyard.');
+    showDiagnostic('Lanyard: błąd sieci przy pierwszym zapytaniu — ' + e.message);
   }
 
   try {
@@ -578,31 +578,37 @@ async function loadLanyard(discordId, cfg) {
         applyLanyardData(msg.d, cfg);
       }
     };
+    lanyardSocket.onerror = () => showDiagnostic('Lanyard: WebSocket error (na żywo aktualizacje nie działają, ale pierwsze dane wyżej powinny).');
   } catch (e) { console.warn('Lanyard socket failed', e); }
 }
 
-// visible on-page diagnostic banner — no need to open devtools to see what went wrong.
-// Only shows in ?debug=1 mode so regular visitors never see it.
+// on-page diagnostic banner, active whenever URL has ?debug=1 — shows every step,
+// not just failures, so we can see exactly how far the Discord sync got.
 function showDiagnostic(msg) {
-  if (!location.search.includes('debug=1')) { console.warn(msg); return; }
+  if (!location.search.includes('debug=1')) return;
   let el = document.getElementById('diag-banner');
   if (!el) {
     el = document.createElement('div');
     el.id = 'diag-banner';
-    el.style.cssText = 'position:fixed;bottom:12px;left:12px;right:12px;z-index:99;background:#7c2d2d;color:#fff;font:12px monospace;padding:10px 14px;border-radius:10px;max-width:600px;margin:0 auto;';
+    el.style.cssText = 'position:fixed;bottom:12px;left:12px;right:12px;z-index:99;background:#1a1a1a;color:#0f0;font:11px monospace;padding:10px 14px;border-radius:10px;max-width:700px;margin:0 auto;border:1px solid #333;white-space:pre-wrap;';
     document.body.appendChild(el);
   }
-  el.textContent = msg;
+  el.textContent += (el.textContent ? '\n' : '') + msg;
 }
 
 async function init() {
   try {
     const res = await fetch('profile.json?_=' + Date.now());
     const cfg = await res.json();
+    showDiagnostic('profile.json wczytany. discordId = "' + cfg.discordId + '"');
     applyTheme(cfg);
     renderProfile(cfg);
     loadViewCount(cfg.username);
-    if (cfg.discordId) loadLanyard(cfg.discordId, cfg);
+    if (cfg.discordId) {
+      loadLanyard(cfg.discordId, cfg);
+    } else {
+      showDiagnostic('discordId jest puste — auto-sync pominięty.');
+    }
   } catch (e) {
     document.getElementById('username').textContent = 'profile.json not found';
     console.error(e);
@@ -622,16 +628,13 @@ const soundToggle = document.getElementById('sound-toggle');
 const soundBtn = document.getElementById('sound-btn');
 const volumeSlider = document.getElementById('volume-slider');
 const bgAudio = document.getElementById('bg-audio');
-const iconMuted = document.getElementById('icon-muted');
-const iconPlaying = document.getElementById('icon-playing');
 const eqBars = document.getElementById('eq-bars');
 
 bgAudio.volume = 0.5;
 
 function updateSoundUI(isPlaying) {
-  iconMuted.style.display = isPlaying ? 'none' : 'block';
-  iconPlaying.style.display = isPlaying ? 'none' : 'none';
   eqBars.style.display = isPlaying ? 'flex' : 'none';
+  document.getElementById('icon-muted').style.display = isPlaying ? 'none' : 'block';
 }
 
 soundBtn.addEventListener('click', () => {
