@@ -44,14 +44,14 @@
     "fontDisplay": "space-grotesk",
     "fontBody": "space-grotesk",
     "fontDescription": "space-grotesk",
-    "descriptionSize": 16.5,
+    "descriptionSize": 24,
     "textEffect": "gradient",
     "autoAvatar": true,
     "autoUsername": true,
     "showStatusRing": true,
     "showStatusBadge": true,
-    "showAvatarDecoration": true,
-    "decorationPresetUrl": "https://cdn.discordapp.com/avatar-decoration-presets/a_13913a00bd9990ab4102a3bf069f0f3f.png",
+    "showAvatarDecoration": false,
+    "decorationPresetUrl": "",
     "usernameGlow": false
   }
 }
