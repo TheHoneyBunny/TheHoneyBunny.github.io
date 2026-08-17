@@ -666,39 +666,52 @@ const bgAudio = document.getElementById('bg-audio');
 const eqBars = document.getElementById('eq-bars');
 
 bgAudio.volume = 0.5;
-bgAudio.muted = false; // starts unmuted — will autoplay once the browser allows it (see below)
+bgAudio.muted = false;
 
-function updateSoundUI(isPlaying) {
-  eqBars.style.display = isPlaying ? 'flex' : 'none';
-  document.getElementById('icon-muted').style.display = isPlaying ? 'none' : 'block';
+function updateSoundUI() {
+  const isAudible = !bgAudio.muted && !bgAudio.paused;
+  eqBars.style.display = isAudible ? 'flex' : 'none';
+  document.getElementById('icon-muted').style.display = isAudible ? 'none' : 'block';
 }
 
-// clicking the speaker toggles mute, not play/pause — matches "starts unmuted, click silences it"
-soundBtn.addEventListener('click', () => {
+// Attempts to start playback. Browsers block audio-with-sound until the user has interacted
+// with the page at all, so the very first attempt (on page load) will usually be rejected —
+// that's expected and silent (.catch(()=>{})). Every click/keydown/touch anywhere on the page
+// retries this, so playback starts on the first interaction, whatever it is.
+function tryPlay() {
+  if (!bgAudio.src) return;
+  if (bgAudio.paused) {
+    bgAudio.play().then(() => { showDiagnostic('Audio: odtwarzanie wystartowało.'); updateSoundUI(); })
+      .catch((err) => showDiagnostic('Audio: przeglądarka zablokowała autoplay (' + err.name + '). Czeka na kliknięcie.'));
+  }
+}
+
+// try immediately on load in case the browser already allows it (e.g. user has interacted
+// with this site before), then keep retrying on every interaction until it succeeds
+tryPlay();
+document.addEventListener('click', tryPlay);
+document.addEventListener('keydown', tryPlay);
+document.addEventListener('touchstart', tryPlay);
+
+// clicking the speaker itself toggles mute — starts unmuted, click silences it
+soundBtn.addEventListener('click', (e) => {
+  e.stopPropagation(); // don't also trigger the page-wide tryPlay listener redundantly
+  tryPlay();
   bgAudio.muted = !bgAudio.muted;
-  updateSoundUI(!bgAudio.muted && !bgAudio.paused);
+  updateSoundUI();
 });
 
-volumeSlider.addEventListener('input', () => {
+volumeSlider.addEventListener('input', (e) => {
+  e.stopPropagation();
+  tryPlay();
   bgAudio.volume = volumeSlider.value / 100;
   bgAudio.muted = bgAudio.volume === 0;
-  updateSoundUI(!bgAudio.muted && !bgAudio.paused);
+  updateSoundUI();
 });
 
-// Browsers block audio autoplay with sound until the user interacts with the page at all
-// (this is a browser policy, not something a website can override). We start playback on
-// the very first click/keypress/touch anywhere on the page, so it feels automatic in practice.
-function tryAutoplayOnce() {
-  if (bgAudio.src && bgAudio.paused) {
-    bgAudio.play().then(() => updateSoundUI(!bgAudio.muted)).catch(() => {});
-  }
-  document.removeEventListener('click', tryAutoplayOnce);
-  document.removeEventListener('keydown', tryAutoplayOnce);
-  document.removeEventListener('touchstart', tryAutoplayOnce);
-}
-document.addEventListener('click', tryAutoplayOnce);
-document.addEventListener('keydown', tryAutoplayOnce);
-document.addEventListener('touchstart', tryAutoplayOnce);
+// once the profile's audio src is actually set (see renderProfile), try playing right away
+const bgAudioObserver = new MutationObserver(() => tryPlay());
+bgAudioObserver.observe(bgAudio, { attributes: true, attributeFilter: ['src'] });
 
 window.addEventListener('resize', () => {
   const canvas = document.getElementById('particles');
