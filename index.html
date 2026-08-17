@@ -278,9 +278,40 @@
   #particles.show { display: block; }
 
   ::selection { background: var(--accent); color: #000; }
+
+  #entry-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.5s ease;
+  }
+  #entry-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #entry-text {
+    color: rgba(255,255,255,0.85);
+    font-family: var(--font-body);
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    animation: entry-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes entry-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
 </style>
 </head>
 <body>
+
+<div id="entry-overlay">
+  <div id="entry-text">click to enter...</div>
+</div>
 
 <div id="bg-layer"></div>
 <video id="bg-video" autoplay muted loop playsinline></video>
@@ -448,6 +479,10 @@ function applyTheme(cfg) {
   document.getElementById('avatar-wrap').classList.toggle('glow', !!app.avatarGlow);
   document.getElementById('avatar-wrap').classList.toggle('no-ring', !app.showStatusRing);
   document.getElementById('sound-toggle').classList.toggle('hidden', !app.showSoundToggle);
+  const entryOverlayEl = document.getElementById('entry-overlay');
+  if (app.showEntryOverlay === false || !cfg.audio) {
+    entryOverlayEl.classList.add('hidden');
+  }
   document.getElementById('views').classList.toggle('hidden', !app.showViews);
   document.getElementById('status-badge').classList.toggle('hidden', !cfg.discordId || !app.showStatusBadge);
 
@@ -692,6 +727,16 @@ tryPlay();
 document.addEventListener('click', tryPlay);
 document.addEventListener('keydown', tryPlay);
 document.addEventListener('touchstart', tryPlay);
+
+// entry overlay: the single click that dismisses "click to enter..." is a guaranteed user
+// gesture, so we use it to reliably unlock audio before the visitor even sees the profile
+const entryOverlay = document.getElementById('entry-overlay');
+function dismissEntryOverlay() {
+  entryOverlay.classList.add('hidden');
+  tryPlay();
+  entryOverlay.removeEventListener('click', dismissEntryOverlay);
+}
+entryOverlay.addEventListener('click', dismissEntryOverlay);
 
 // clicking the speaker itself toggles mute — starts unmuted, click silences it
 soundBtn.addEventListener('click', (e) => {

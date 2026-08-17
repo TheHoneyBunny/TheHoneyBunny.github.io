@@ -310,6 +310,8 @@
       <div class="toggle-row"><span>Unoszące się cząsteczki w tle</span><div class="toggle" id="f-particles"></div></div>
       <div class="toggle-row"><span>Ziarno / grain na tle</span><div class="toggle" id="f-grain"></div></div>
       <div class="toggle-row"><span>Pokaż przycisk dźwięku</span><div class="toggle" id="f-showSoundToggle"></div></div>
+      <div class="toggle-row"><span>Ekran "kliknij aby wejść"</span><div class="toggle" id="f-showEntryOverlay"></div></div>
+      <div class="hint">Ten ekran odblokowuje dźwięk od razu przy wejściu (guns.lol robi to samo) — bez niego muzyka wystartuje dopiero po pierwszym kliknięciu gdziekolwiek na stronie. Pokazuje się tylko, gdy masz wgrany plik audio.</div>
       <div class="toggle-row"><span>Pokaż licznik wyświetleń</span><div class="toggle" id="f-showViews"></div></div>
       <div class="hint">Licznik jest teraz globalny (prawdziwe odsłony od wszystkich odwiedzających), nie lokalny w Twojej przeglądarce. W tym panelu podglądowo zawsze pokazuje przykładową liczbę.</div>
     </div>
@@ -397,7 +399,7 @@ function defaultProfile() {
       background: '', backgroundVideo: '', backgroundType: 'image', cursor: '',
       cardOpacity: 55, blurPx: 22, cardRadius: 28, iconRadius: 13, cardWidth: 420, cardHeight: 0,
       overlayStrength: 100, avatarGlow: false, particles: false, grain: true,
-      showSoundToggle: true, showViews: true, fontDisplay: 'space-grotesk', fontBody: 'space-grotesk',
+      showSoundToggle: true, showEntryOverlay: true, showViews: true, fontDisplay: 'space-grotesk', fontBody: 'space-grotesk',
       fontDescription: 'space-grotesk', descriptionSize: 14.5,
       textEffect: 'solid',
       autoAvatar: true, autoUsername: true, showStatusRing: true, showStatusBadge: true, showAvatarDecoration: true,
@@ -596,6 +598,7 @@ function loadFormFromState() {
   $('f-particles').classList.toggle('on', !!state.appearance.particles);
   $('f-grain').classList.toggle('on', state.appearance.grain !== false);
   $('f-showSoundToggle').classList.toggle('on', !!state.appearance.showSoundToggle);
+  $('f-showEntryOverlay').classList.toggle('on', state.appearance.showEntryOverlay !== false);
   $('f-showViews').classList.toggle('on', !!state.appearance.showViews);
   $('f-autoAvatar').classList.toggle('on', state.appearance.autoAvatar !== false);
   $('f-autoUsername').classList.toggle('on', state.appearance.autoUsername !== false);
@@ -731,6 +734,7 @@ function bindToggle(id, path) {
 bindToggle('f-avatarGlow', 'avatarGlow');
 bindToggle('f-particles', 'particles');
 bindToggle('f-showSoundToggle', 'showSoundToggle');
+bindToggle('f-showEntryOverlay', 'showEntryOverlay');
 bindToggle('f-showViews', 'showViews');
 bindToggle('f-autoAvatar', 'autoAvatar');
 bindToggle('f-autoUsername', 'autoUsername');
