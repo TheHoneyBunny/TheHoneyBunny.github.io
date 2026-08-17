@@ -14,6 +14,10 @@
     {
       "icon": "spotify",
       "url": "https://open.spotify.com/user/317ntnv3tdl4rauqiucvywpjs2ta?si=fb1833bdffda4259"
+    },
+    {
+      "icon": "website",
+      "url": "https:/"
     }
   ],
   "colors": {
@@ -44,7 +48,7 @@
     "fontDisplay": "space-grotesk",
     "fontBody": "space-grotesk",
     "fontDescription": "serif",
-    "descriptionSize": 19.5,
+    "descriptionSize": 20,
     "textEffect": "gradient",
     "autoAvatar": true,
     "autoUsername": true,
