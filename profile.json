@@ -17,17 +17,17 @@
     }
   ],
   "colors": {
-    "accent": "#f771f9",
-    "text": "#ffea00",
-    "background": "#ffffff",
-    "cardTint": "#b01fff",
+    "accent": "#ffd479",
+    "text": "#ffffff",
+    "background": "#0a0805",
+    "cardTint": "#1a1408",
     "icon": "#ffffff",
-    "glow": "#f7c5ec"
+    "glow": "#ffb347"
   },
   "appearance": {
-    "background": "",
-    "backgroundVideo": "assets/1786270220500.mp4",
-    "backgroundType": "video",
+    "background": "assets/1786991431172.jpg",
+    "backgroundVideo": "",
+    "backgroundType": "image",
     "cursor": "",
     "cardOpacity": 5,
     "blurPx": 2,
